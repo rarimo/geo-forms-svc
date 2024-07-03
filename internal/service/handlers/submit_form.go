@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rarimo/forms-svc/internal/data"
-	"github.com/rarimo/forms-svc/internal/service/requests"
-	"github.com/rarimo/forms-svc/resources"
 	"github.com/rarimo/geo-auth-svc/pkg/auth"
+	"github.com/rarimo/geo-forms-svc/internal/data"
+	"github.com/rarimo/geo-forms-svc/internal/service/requests"
+	"github.com/rarimo/geo-forms-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )

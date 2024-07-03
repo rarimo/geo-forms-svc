@@ -1,4 +1,4 @@
-# forms-svc
+# geo-forms-svc
 
 ## Description
 
@@ -7,8 +7,8 @@
 ## Install
 
   ```
-  git clone github.com/rarimo/forms-svc
-  cd forms-svc
+  git clone github.com/rarimo/geo-forms-svc
+  cd geo-forms-svc
   go build main.go
   export KV_VIPER_FILE=./config.yaml
   ./main migrate up
@@ -41,8 +41,8 @@ Make sure that docker installed.
 use `docker run ` with `-p 8080:80` to expose port 80 to 8080
 
   ```
-  docker build -t github.com/rarimo/forms-svc .
-  docker run -e KV_VIPER_FILE=/config.yaml github.com/rarimo/forms-svc
+  docker build -t github.com/rarimo/geo-forms-svc .
+  docker run -e KV_VIPER_FILE=/config.yaml github.com/rarimo/geo-forms-svc
   ```
 
 ## Running from Source

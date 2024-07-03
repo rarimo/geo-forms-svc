@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/rarimo/forms-svc/internal/cli"
+	"github.com/rarimo/geo-forms-svc/internal/cli"
 )
 
 func main() {

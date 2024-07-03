@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/rarimo/forms-svc/internal/service/requests"
 	"github.com/rarimo/geo-auth-svc/pkg/auth"
+	"github.com/rarimo/geo-forms-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )

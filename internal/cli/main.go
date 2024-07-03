@@ -8,9 +8,9 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/rarimo/forms-svc/internal/config"
-	"github.com/rarimo/forms-svc/internal/service"
-	"github.com/rarimo/forms-svc/internal/service/workers/formsender"
+	"github.com/rarimo/geo-forms-svc/internal/config"
+	"github.com/rarimo/geo-forms-svc/internal/service"
+	"github.com/rarimo/geo-forms-svc/internal/service/workers/formsender"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
 )
@@ -27,7 +27,7 @@ func Run(args []string) bool {
 	cfg := config.New(kv.MustFromEnv())
 	log = cfg.Log()
 
-	app := kingpin.New("forms-svc", "")
+	app := kingpin.New("geo-forms-svc", "")
 
 	runCmd := app.Command("run", "run command")
 	serviceCmd := runCmd.Command("service", "run service") // you can insert custom help

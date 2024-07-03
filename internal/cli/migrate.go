@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/rarimo/forms-svc/internal/assets"
-	"github.com/rarimo/forms-svc/internal/config"
+	"github.com/rarimo/geo-forms-svc/internal/assets"
+	"github.com/rarimo/geo-forms-svc/internal/config"
 	migrate "github.com/rubenv/sql-migrate"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 )

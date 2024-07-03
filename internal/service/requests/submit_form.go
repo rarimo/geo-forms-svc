@@ -7,7 +7,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"github.com/rarimo/forms-svc/resources"
+	"github.com/rarimo/geo-forms-svc/resources"
 )
 
 // 4 b64 letters encode 3 bytes, max image size = 12 MB -> (12/3)*4 * (1 << 20)

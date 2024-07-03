@@ -1,4 +1,4 @@
-module github.com/rarimo/forms-svc
+module github.com/rarimo/geo-forms-svc
 
 go 1.22.2
 

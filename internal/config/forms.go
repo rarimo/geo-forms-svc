@@ -7,7 +7,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/rarimo/forms-svc/internal/data"
+	"github.com/rarimo/geo-forms-svc/internal/data"
 	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/kv"
 )

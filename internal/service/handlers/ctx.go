@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/rarimo/forms-svc/internal/config"
-	"github.com/rarimo/forms-svc/internal/data"
 	"github.com/rarimo/geo-auth-svc/resources"
+	"github.com/rarimo/geo-forms-svc/internal/config"
+	"github.com/rarimo/geo-forms-svc/internal/data"
 	"gitlab.com/distributed_lab/logan/v3"
 )
 

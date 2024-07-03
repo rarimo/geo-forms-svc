@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/rarimo/forms-svc/internal/data"
+	"github.com/rarimo/geo-forms-svc/internal/data"
 	"gitlab.com/distributed_lab/kit/pgdb"
 )
 

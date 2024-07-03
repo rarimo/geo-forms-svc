@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/rarimo/forms-svc/internal/config"
-	"github.com/rarimo/forms-svc/internal/data"
-	"github.com/rarimo/forms-svc/internal/data/pg"
+	"github.com/rarimo/geo-forms-svc/internal/config"
+	"github.com/rarimo/geo-forms-svc/internal/data"
+	"github.com/rarimo/geo-forms-svc/internal/data/pg"
 	"gitlab.com/distributed_lab/kit/pgdb"
 	"gitlab.com/distributed_lab/running"
 )
