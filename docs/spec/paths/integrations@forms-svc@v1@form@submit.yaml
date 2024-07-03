@@ -1,0 +1,29 @@
+post:
+  tags:
+    - User form
+  summary: Submit user answers
+  description: Users fill out a form and send data to this endpoint
+  operationId: submitForm
+  requestBody:
+    content:
+      application/vnd.api+json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/SubmitForm'
+  responses:
+    200:
+      description: "Success"
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Form'
+    401:
+      $ref: '#/components/responses/invalidAuth'
+    404:
+      $ref: '#/components/responses/notFound'
+    500:
+      $ref: '#/components/responses/internalError'

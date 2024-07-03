@@ -1,0 +1,28 @@
+get:
+  tags:
+    - User form
+  summary: Get form
+  description: Get user form by uuid with prcessing status
+  operationId: getForm
+  parameters:
+    - $ref: '#/components/parameters/pathID'
+  responses:
+    200:
+      description: Success
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/Form'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    401:
+      $ref: '#/components/responses/invalidAuth'
+    404:
+      $ref: '#/components/responses/notFound'
+    500:
+      $ref: '#/components/responses/internalError'

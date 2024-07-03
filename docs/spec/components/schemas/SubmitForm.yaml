@@ -1,0 +1,62 @@
+allOf:
+  - $ref: '#/components/schemas/SubmitFormKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - name
+          - surname
+          - id_num
+          - birthday
+          - citizen
+          - visited
+          - purpose
+          - country
+          - city
+          - address
+          - postal
+          - phone
+          - email
+          - image
+        properties:
+          name:
+            type: string
+            pattern: '[a-zA-Z]+'
+          surname:
+            type: string
+            pattern: '[a-zA-Z]+'
+          id_num:
+            type: string
+            pattern: '[0-9]+'
+          birthday:
+            type: string
+            description: DD-MM-YYYY format
+          citizen:
+            type: string
+            pattern: '[a-zA-Z]+'
+          visited:
+            type: string
+          purpose:
+            type: string
+          country:
+            type: string
+            pattern: '[a-zA-Z]+'
+          city:
+            type: string
+            pattern: '[a-zA-Z]+'
+          address:
+            type: string
+          postal:
+            type: string
+            pattern: '[0-9]+'
+          phone:
+            type: string
+          email:
+            type: string
+          image:
+            type: string
+            description: base64 encoded image with max size 12 MB

@@ -1,0 +1,19 @@
+log:
+  level: debug
+  disable_sentry: true
+
+db:
+  url: postgres://forms:forms@127.0.0.1:5440/forms?sslmode=disable
+
+listener:
+  addr: :8000
+
+forms:
+  cooldown: 60m
+  period: 1m
+  min_abnormal_period: 1m
+  max_abnormal_period: 10m
+  url: forms:forms@tcp(127.0.0.1:5441)/forms
+
+auth:
+  addr: http://127.0.0.1:5000
