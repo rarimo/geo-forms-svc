@@ -1,0 +1,472 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "geo-forms-svc",
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "https://api.demo.tokend.io",
+      "description": "TokenD Developer Environment"
+    }
+  ],
+  "paths": {
+    "/integrations/forms-svc/v1/form/{id}": {
+      "get": {
+        "tags": [
+          "User form"
+        ],
+        "summary": "Get form",
+        "description": "Get user form by uuid with prcessing status",
+        "operationId": "getForm",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/pathID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Form"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/invalidAuth"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    },
+    "/integrations/forms-svc/v1/form/submit": {
+      "post": {
+        "tags": [
+          "User form"
+        ],
+        "summary": "Submit user answers",
+        "description": "Users fill out a form and send data to this endpoint",
+        "operationId": "submitForm",
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/SubmitForm"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Form"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/invalidAuth"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Errors": {
+        "description": "Standard JSON:API error",
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "description": "Non empty array of errors occurred during request processing",
+            "items": {
+              "type": "object",
+              "required": [
+                "title",
+                "status"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Title is a short, human-readable summary of the problem",
+                  "example": "Bad Request"
+                },
+                "detail": {
+                  "type": "string",
+                  "description": "Detail is a human-readable explanation specific to this occurrence of the problem",
+                  "example": "Request body was expected"
+                },
+                "status": {
+                  "type": "integer",
+                  "description": "Status is the HTTP status code applicable to this problem",
+                  "example": 400,
+                  "enum": [
+                    400,
+                    401,
+                    403,
+                    404,
+                    409,
+                    500
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Form": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FormKey"
+          },
+          {
+            "type": "object",
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "name",
+                  "surname",
+                  "id_num",
+                  "birthday",
+                  "citizen",
+                  "visited",
+                  "purpose",
+                  "country",
+                  "city",
+                  "address",
+                  "postal",
+                  "phone",
+                  "email",
+                  "image"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "accepted",
+                      "processed"
+                    ],
+                    "description": "Accepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\n"
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "surname": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "id_num": {
+                    "type": "string",
+                    "pattern": "[0-9]+"
+                  },
+                  "birthday": {
+                    "type": "string",
+                    "description": "DD-MM-YYYY format"
+                  },
+                  "citizen": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "visited": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "city": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "postal": {
+                    "type": "string",
+                    "pattern": "[0-9]+"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "image": {
+                    "type": "string",
+                    "description": "base64 encoded image with max size 12 MB"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FormKey": {
+        "type": "object",
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID for check form submission status"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "form"
+            ]
+          }
+        }
+      },
+      "SubmitForm": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SubmitFormKey"
+          },
+          {
+            "type": "object",
+            "x-go-is-request": true,
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "surname",
+                  "id_num",
+                  "birthday",
+                  "citizen",
+                  "visited",
+                  "purpose",
+                  "country",
+                  "city",
+                  "address",
+                  "postal",
+                  "phone",
+                  "email",
+                  "image"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "surname": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "id_num": {
+                    "type": "string",
+                    "pattern": "[0-9]+"
+                  },
+                  "birthday": {
+                    "type": "string",
+                    "description": "DD-MM-YYYY format"
+                  },
+                  "citizen": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "visited": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "city": {
+                    "type": "string",
+                    "pattern": "[a-zA-Z]+"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "postal": {
+                    "type": "string",
+                    "pattern": "[0-9]+"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "image": {
+                    "type": "string",
+                    "description": "base64 encoded image with max size 12 MB"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "SubmitFormKey": {
+        "type": "object",
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "0x123...abc",
+            "pattern": "^0x[0-9a-fA-F]{64}$",
+            "description": "User nullifier 32 bytes"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "submit_form"
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "internalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/vnd.api+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Errors"
+            }
+          }
+        }
+      },
+      "invalidAuth": {
+        "description": "You must provide a valid authorization params.",
+        "content": {
+          "application/vnd.api+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Errors"
+            }
+          }
+        }
+      },
+      "invalidParameter": {
+        "description": "One of the parameters is invalid. Refer to the response body for details.",
+        "content": {
+          "application/vnd.api+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Errors"
+            }
+          }
+        }
+      },
+      "notFound": {
+        "description": "Requested resource does not exist.",
+        "content": {
+          "application/vnd.api+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Errors"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "pageLimitParam": {
+        "in": "query",
+        "name": "page[limit]",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 15,
+          "description": "Numbers of items per page to return."
+        }
+      },
+      "pageNumberParam": {
+        "in": "query",
+        "name": "page[number]",
+        "required": false,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "The number of a page to return."
+      },
+      "pathID": {
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "dc3d2b96-9ff1-4f54-9fb6-005a518089fe"
+        }
+      },
+      "sortingParam": {
+        "in": "query",
+        "name": "page[order]",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc",
+          "description": "Order of records on the page. If sortingParam is not specified, order of records is by default sorted by ID."
+        }
+      }
+    }
+  }
+}
