@@ -2,8 +2,12 @@ post:
   tags:
     - User form
   summary: Submit user answers
-  description: Users fill out a form and send data to this endpoint
+  description: |
+    Users fill out a form and send data to this endpoint.
+    User must have verified passport (is_verified true in JWT).
   operationId: submitForm
+  security:
+    - JWTAuth: [ ]
   requestBody:
     content:
       application/vnd.api+json:
