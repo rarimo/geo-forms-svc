@@ -41,8 +41,12 @@ paths:
       tags:
         - User form
       summary: Submit user answers
-      description: Users fill out a form and send data to this endpoint
+      description: |
+        Users fill out a form and send data to this endpoint.
+        User must have verified passport (is_verified true in JWT).
       operationId: submitForm
+      security:
+        - JWTAuth: []
       requestBody:
         content:
           application/vnd.api+json:
@@ -138,10 +142,8 @@ components:
                     Processed - the data is processed and stored
                 name:
                   type: string
-                  pattern: '[a-zA-Z]+'
                 surname:
                   type: string
-                  pattern: '[a-zA-Z]+'
                 id_num:
                   type: string
                   pattern: '[0-9]+'
@@ -150,22 +152,19 @@ components:
                   description: DD-MM-YYYY format
                 citizen:
                   type: string
-                  pattern: '[a-zA-Z]+'
                 visited:
                   type: string
                 purpose:
                   type: string
                 country:
                   type: string
-                  pattern: '[a-zA-Z]+'
                 city:
                   type: string
-                  pattern: '[a-zA-Z]+'
                 address:
                   type: string
                 postal:
                   type: string
-                  pattern: '[0-9]+'
+                  pattern: '[0-9]{5}'
                 phone:
                   type: string
                 email:
