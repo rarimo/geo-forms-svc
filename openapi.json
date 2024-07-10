@@ -302,24 +302,20 @@
                 ],
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "pattern": "[a-zA-Z]+"
+                    "type": "string"
                   },
                   "surname": {
-                    "type": "string",
-                    "pattern": "[a-zA-Z]+"
+                    "type": "string"
                   },
                   "id_num": {
-                    "type": "string",
-                    "pattern": "[0-9]+"
+                    "type": "string"
                   },
                   "birthday": {
                     "type": "string",
                     "description": "DD-MM-YYYY format"
                   },
                   "citizen": {
-                    "type": "string",
-                    "pattern": "[a-zA-Z]+"
+                    "type": "string"
                   },
                   "visited": {
                     "type": "string"
@@ -328,19 +324,17 @@
                     "type": "string"
                   },
                   "country": {
-                    "type": "string",
-                    "pattern": "[a-zA-Z]+"
+                    "type": "string"
                   },
                   "city": {
-                    "type": "string",
-                    "pattern": "[a-zA-Z]+"
+                    "type": "string"
                   },
                   "address": {
                     "type": "string"
                   },
                   "postal": {
                     "type": "string",
-                    "pattern": "[0-9]+"
+                    "pattern": "[0-9]{5}"
                   },
                   "phone": {
                     "type": "string"
