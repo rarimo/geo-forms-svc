@@ -146,7 +146,6 @@ components:
                   type: string
                 id_num:
                   type: string
-                  pattern: '[0-9]+'
                 birthday:
                   type: string
                   description: DD-MM-YYYY format
@@ -164,7 +163,6 @@ components:
                   type: string
                 postal:
                   type: string
-                  pattern: '[0-9]{5}'
                 phone:
                   type: string
                 email:
@@ -219,7 +217,6 @@ components:
                   type: string
                 birthday:
                   type: string
-                  description: DD-MM-YYYY format
                 citizen:
                   type: string
                 visited:
@@ -234,7 +231,6 @@ components:
                   type: string
                 postal:
                   type: string
-                  pattern: '[0-9]{5}'
                 phone:
                   type: string
                 email:

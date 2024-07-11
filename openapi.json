@@ -206,8 +206,7 @@
                     "type": "string"
                   },
                   "id_num": {
-                    "type": "string",
-                    "pattern": "[0-9]+"
+                    "type": "string"
                   },
                   "birthday": {
                     "type": "string",
@@ -232,8 +231,7 @@
                     "type": "string"
                   },
                   "postal": {
-                    "type": "string",
-                    "pattern": "[0-9]{5}"
+                    "type": "string"
                   },
                   "phone": {
                     "type": "string"
@@ -311,8 +309,7 @@
                     "type": "string"
                   },
                   "birthday": {
-                    "type": "string",
-                    "description": "DD-MM-YYYY format"
+                    "type": "string"
                   },
                   "citizen": {
                     "type": "string"
@@ -333,8 +330,7 @@
                     "type": "string"
                   },
                   "postal": {
-                    "type": "string",
-                    "pattern": "[0-9]{5}"
+                    "type": "string"
                   },
                   "phone": {
                     "type": "string"
