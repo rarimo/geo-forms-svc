@@ -35,7 +35,6 @@ allOf:
             type: string
           id_num:
             type: string
-            pattern: '[0-9]+'
           birthday:
             type: string
             description: DD-MM-YYYY format
@@ -53,7 +52,6 @@ allOf:
             type: string
           postal:
             type: string
-            pattern: '[0-9]{5}'
           phone:
             type: string
           email:
