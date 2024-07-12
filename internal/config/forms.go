@@ -103,7 +103,7 @@ func (f *Forms) SendForms(forms ...data.Form) error {
 	}
 
 	if _, err = f.db.Exec(query, args...); err != nil {
-		return fmt.Errorf("insert form [%+v]: %w", forms, err)
+		return fmt.Errorf("insert form: %w", err)
 	}
 
 	return nil
