@@ -20,8 +20,13 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nullifier := strings.ToLower(req.Data.ID)
-	if !auth.Authenticates(UserClaims(r), auth.VerifiedGrant(req.Data.ID)) {
+	if len(UserClaims(r)) == 0 {
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
+
+	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
+	if !auth.Authenticates(UserClaims(r), auth.VerifiedGrant(nullifier)) {
 		ape.RenderErr(w, problems.Unauthorized())
 		return
 	}
