@@ -37,7 +37,6 @@ allOf:
             type: string
           birthday:
             type: string
-            description: DD-MM-YYYY format
           citizen:
             type: string
           visited:
