@@ -42,11 +42,12 @@ paths:
         - User form
       summary: Submit user answers
       description: |
-        Users fill out a form and send data to this endpoint.
-        User must have verified passport (is_verified true in JWT).
+        Only a user with a confirmed passport can send the form.
+        A delay before sending the next form can also be configured.
       operationId: submitForm
       security:
-        - JWTAuth: []
+        - BearerAuth:
+            - 'verified: true'
       requestBody:
         content:
           application/vnd.api+json:
@@ -64,10 +65,16 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/Form'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
         '401':
           $ref: '#/components/responses/invalidAuth'
-        '404':
-          $ref: '#/components/responses/notFound'
+        '429':
+          description: It is necessary to wait some time before sending the next form
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           $ref: '#/components/responses/internalError'
 components:
@@ -148,7 +155,6 @@ components:
                   type: string
                 birthday:
                   type: string
-                  description: DD-MM-YYYY format
                 citizen:
                   type: string
                 visited:
@@ -314,3 +320,9 @@ components:
           - desc
         default: desc
         description: 'Order of records on the page. If sortingParam is not specified, order of records is by default sorted by ID.'
+  securitySchemes:
+    BearerAuth:
+      BearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
