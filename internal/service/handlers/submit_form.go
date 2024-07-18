@@ -103,7 +103,7 @@ func newFormResponse(form *data.Form) resources.FormResponse {
 				Postal:   form.Postal,
 				Phone:    form.Phone,
 				Email:    form.Email,
-				Image:    form.Image,
+				Image:    "",
 				Status:   form.Status,
 			},
 		},
