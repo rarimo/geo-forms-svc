@@ -41,22 +41,23 @@ func (c *config) Forms() *Forms {
 			panic(fmt.Errorf("failed to figure out withdrawal point price: %w", err))
 		}
 
-		db, err := sql.Open("mysql", cfg.URL)
-		if err != nil {
-			panic(fmt.Errorf("failed to connect to mysql: %w", err))
-		}
+		// db, err := sql.Open("mysql", cfg.URL)
+		// if err != nil {
+		// 	panic(fmt.Errorf("failed to connect to mysql: %w", err))
+		// }
 
 		return &Forms{
 			Cooldown:          cfg.Cooldown,
 			Period:            cfg.Period,
 			MinAbnormalPeriod: cfg.MinAbnormalPeriod,
 			MaxAbnormalPeriod: cfg.MaxAbnormalPeriod,
-			db:                db,
+			db:                nil,
 		}
 	}).(*Forms)
 }
 
 func (f *Forms) SendForms(forms ...data.Form) error {
+	return nil
 	if len(forms) == 0 {
 		return nil
 	}
