@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
@@ -33,7 +34,7 @@ func NewSubmitForm(r *http.Request) (req resources.SubmitFormRequest, err error)
 		"data/attributes/address":  validation.Validate(req.Data.Attributes.Address, validation.Required),
 		"data/attributes/postal":   validation.Validate(req.Data.Attributes.Postal, validation.Required),
 		"data/attributes/phone":    validation.Validate(req.Data.Attributes.Phone, validation.Required),
-		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, is.Email),
+		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`))),
 		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.Base64, validation.Length(0, maxImageSize)),
 	}
 
