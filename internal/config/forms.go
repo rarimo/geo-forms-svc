@@ -19,6 +19,7 @@ type Forms struct {
 	Period            time.Duration
 	MinAbnormalPeriod time.Duration
 	MaxAbnormalPeriod time.Duration
+	ResendFormsCount  uint64
 	db                *sql.DB
 }
 
@@ -27,6 +28,7 @@ type formsConfig struct {
 	Period            time.Duration `fig:"period,required"`
 	MinAbnormalPeriod time.Duration `fig:"min_abnormal_period,required"`
 	MaxAbnormalPeriod time.Duration `fig:"max_abnormal_period,required"`
+	ResendFormsCount  uint64        `fig:"resend_forms_count,required"`
 	URL               string        `fig:"url,required"`
 }
 
@@ -51,12 +53,13 @@ func (c *config) Forms() *Forms {
 			Period:            cfg.Period,
 			MinAbnormalPeriod: cfg.MinAbnormalPeriod,
 			MaxAbnormalPeriod: cfg.MaxAbnormalPeriod,
+			ResendFormsCount:  cfg.ResendFormsCount,
 			db:                db,
 		}
 	}).(*Forms)
 }
 
-func (f *Forms) SendForms(forms ...data.Form) error {
+func (f *Forms) SendForms(forms ...*data.Form) error {
 	if len(forms) == 0 {
 		return nil
 	}
@@ -79,6 +82,9 @@ func (f *Forms) SendForms(forms ...data.Form) error {
 	)
 
 	for _, form := range forms {
+		if form == nil {
+			continue
+		}
 		stmt = stmt.Values(
 			form.Name,
 			form.Surname,

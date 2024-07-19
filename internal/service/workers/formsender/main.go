@@ -25,7 +25,7 @@ func Run(ctx context.Context, cfg config.Config) {
 		log,
 		"resender",
 		func(context.Context) error {
-			forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).Select()
+			forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).Limit(formsCfg.ResendFormsCount).Select()
 			if err != nil {
 				return fmt.Errorf("failed to get unsended forms: %w", err)
 			}

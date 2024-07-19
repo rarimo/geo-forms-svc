@@ -32,8 +32,8 @@ func (q *formsQ) New() data.FormsQ {
 	return NewForms(q.db)
 }
 
-func (q *formsQ) Insert(form data.Form) (*data.Form, error) {
-	var res data.Form
+func (q *formsQ) Insert(form *data.Form) (string, error) {
+	var res string
 	stmt := squirrel.Insert(formsTable).SetMap(map[string]interface{}{
 		"nullifier": form.Nullifier,
 		"status":    form.Status,
@@ -51,13 +51,13 @@ func (q *formsQ) Insert(form data.Form) (*data.Form, error) {
 		"phone":     form.Phone,
 		"email":     form.Email,
 		"image":     form.Image,
-	}).Suffix("RETURNING *")
+	}).Suffix("RETURNING id")
 
 	if err := q.db.Get(&res, stmt); err != nil {
-		return nil, fmt.Errorf("insert form [%+v]: %w", form, err)
+		return "", fmt.Errorf("insert form [%+v]: %w", form, err)
 	}
 
-	return &res, nil
+	return res, nil
 }
 
 func (q *formsQ) Update(status string) error {
@@ -68,8 +68,8 @@ func (q *formsQ) Update(status string) error {
 	return nil
 }
 
-func (q *formsQ) Select() ([]data.Form, error) {
-	var res []data.Form
+func (q *formsQ) Select() ([]*data.Form, error) {
+	var res []*data.Form
 
 	if err := q.db.Select(&res, q.selector); err != nil {
 		return nil, fmt.Errorf("select forms: %w", err)
@@ -102,6 +102,11 @@ func (q *formsQ) Last() (*data.Form, error) {
 	}
 
 	return &res, nil
+}
+
+func (q *formsQ) Limit(limit uint64) data.FormsQ {
+	q.selector = q.selector.Limit(limit)
+	return q
 }
 
 func (q *formsQ) FilterByID(ids ...string) data.FormsQ {

@@ -34,5 +34,5 @@ func GetForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ape.Render(w, newFormResponse(form))
+	ape.Render(w, newFormResponse(form.ID))
 }

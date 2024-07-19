@@ -63,11 +63,11 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		Postal:    userData.Postal,
 		Phone:     userData.Phone,
 		Email:     userData.Email,
-		Image:     userData.Image,
+		Image:     &userData.Image,
 	}
 
 	Log(r).Debug("Start mysql insert query")
-	err = Forms(r).SendForms(*form)
+	err = Forms(r).SendForms(form)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to send form")
 		form.Status = data.AcceptedStatus
@@ -75,7 +75,7 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 	Log(r).Debug("Finished mysql insert query")
 
 	Log(r).Debug("Start postgresql insert query")
-	form, err = FormsQ(r).Insert(*form)
+	formID, err := FormsQ(r).Insert(form)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
@@ -83,32 +83,15 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 	Log(r).Debug("Finished postgresql insert query")
 
-	ape.Render(w, newFormResponse(form))
+	ape.Render(w, newFormResponse(formID))
 }
 
-func newFormResponse(form *data.Form) resources.FormResponse {
+func newFormResponse(formID string) resources.FormResponse {
 	return resources.FormResponse{
 		Data: resources.Form{
 			Key: resources.Key{
-				ID:   form.ID,
+				ID:   formID,
 				Type: resources.FORM,
-			},
-			Attributes: resources.FormAttributes{
-				Name:     form.Name,
-				Surname:  form.Surname,
-				IdNum:    form.IDNum,
-				Birthday: form.Birthday,
-				Citizen:  form.Citizen,
-				Visited:  form.Visited,
-				Purpose:  form.Purpose,
-				Country:  form.Country,
-				City:     form.City,
-				Address:  form.Address,
-				Postal:   form.Postal,
-				Phone:    form.Phone,
-				Email:    form.Email,
-				Image:    "",
-				Status:   form.Status,
 			},
 		},
 	}
