@@ -57,4 +57,4 @@ allOf:
             type: string
           image:
             type: string
-            description: base64 encoded image with max size 12 MB
+            description: base64 encoded image with max size 4 MB

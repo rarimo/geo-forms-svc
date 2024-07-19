@@ -13,6 +13,7 @@ forms:
   period: 1m
   min_abnormal_period: 1m
   max_abnormal_period: 10m
+  resend_forms_count: 1
   url: forms:forms@tcp(127.0.0.1:5441)/forms
 
 auth:

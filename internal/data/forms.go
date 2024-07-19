@@ -6,7 +6,6 @@ import (
 
 const (
 	AcceptedStatus  = "accepted"
-	ResendingStatus = "resending"
 	ProcessedStatus = "processed"
 )
 
@@ -27,19 +26,20 @@ type Form struct {
 	Postal    string    `db:"postal"`
 	Phone     string    `db:"phone"`
 	Email     string    `db:"email"`
-	Image     string    `db:"image"`
+	Image     *string   `db:"image"`
 	CreatedAt time.Time `db:"created_at"`
 }
 
 type FormsQ interface {
 	New() FormsQ
-	Insert(Form) (*Form, error)
+	Insert(*Form) (string, error)
 	Update(status string) error
 
-	Select() ([]Form, error)
+	Select() ([]*Form, error)
 	Get() (*Form, error)
-	// last returns the most recent form
+	// Last returns the most recent form after applying filters.
 	Last() (*Form, error)
+	Limit(uint64) FormsQ
 
 	FilterByID(ids ...string) FormsQ
 	FilterByNullifier(nullifier string) FormsQ
