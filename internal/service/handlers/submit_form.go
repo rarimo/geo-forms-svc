@@ -66,18 +66,22 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		Image:     userData.Image,
 	}
 
+	Log(r).Debug("Start mysql insert query")
 	err = Forms(r).SendForms(*form)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to send form")
 		form.Status = data.AcceptedStatus
 	}
+	Log(r).Debug("Finished mysql insert query")
 
+	Log(r).Debug("Start postgresql insert query")
 	form, err = FormsQ(r).Insert(*form)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
+	Log(r).Debug("Finished postgresql insert query")
 
 	ape.Render(w, newFormResponse(form))
 }
