@@ -11,49 +11,44 @@ import (
 	"gitlab.com/distributed_lab/running"
 )
 
-type dbaser struct {
+type formsQ struct {
 	db *pgdb.DB
 }
 
 func Run(ctx context.Context, cfg config.Config) {
 	log := cfg.Log().WithField("who", "form-sender")
-	formsCfg := cfg.Forms()
-	db := dbaser{cfg.DB().Clone()}
+	db := formsQ{cfg.DB().Clone()}
 
-	running.WithBackOff(
-		ctx,
-		log,
-		"resender",
-		func(context.Context) error {
-			forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).Select()
-			if err != nil {
-				return fmt.Errorf("failed to get unsended forms: %w", err)
-			}
-			if len(forms) == 0 {
-				return nil
-			}
-
-			if err = cfg.Forms().SendForms(forms...); err != nil {
-				return fmt.Errorf("failed to send forms: %w", err)
-			}
-
-			ids := make([]string, len(forms))
-			for i, v := range forms {
-				ids[i] = v.ID
-			}
-
-			if err = db.FormsQ().FilterByID(ids...).Update(data.ProcessedStatus); err != nil {
-				return fmt.Errorf("failed to update form status: %w", err)
-			}
-
+	running.WithBackOff(ctx, log, "resender", func(context.Context) error {
+		forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).Select()
+		if err != nil {
+			return fmt.Errorf("failed to get unsended forms: %w", err)
+		}
+		if len(forms) == 0 {
 			return nil
-		},
-		formsCfg.Period,
-		formsCfg.MinAbnormalPeriod,
-		formsCfg.MaxAbnormalPeriod,
+		}
+
+		if err = cfg.Forms().SendForms(forms...); err != nil {
+			return fmt.Errorf("failed to send forms: %w", err)
+		}
+
+		ids := make([]string, len(forms))
+		for i, v := range forms {
+			ids[i] = v.ID
+		}
+
+		if err = db.FormsQ().FilterByID(ids...).Update(data.ProcessedStatus); err != nil {
+			return fmt.Errorf("failed to update form status: %w", err)
+		}
+
+		return nil
+	},
+		cfg.Forms().Period,
+		cfg.Forms().MinAbnormalPeriod,
+		cfg.Forms().MaxAbnormalPeriod,
 	)
 }
 
-func (d *dbaser) FormsQ() data.FormsQ {
+func (d *formsQ) FormsQ() data.FormsQ {
 	return pg.NewForms(d.db)
 }

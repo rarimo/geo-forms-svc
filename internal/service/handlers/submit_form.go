@@ -33,17 +33,18 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 
 	form, err := FormsQ(r).FilterByNullifier(nullifier).Last()
 	if err != nil {
-		Log(r).WithError(err).Errorf("failed to get last user form for nullifier [%s]", nullifier)
+		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if form != nil && form.CreatedAt.Add(Forms(r).Cooldown).After(time.Now().UTC()) {
-		Log(r).Debugf("Form submitted time: %s; Next available time: %s",
-			form.CreatedAt.String(),
-			form.CreatedAt.Add(Forms(r).Cooldown).String())
-		ape.RenderErr(w, problems.TooManyRequests())
-		return
+	if form != nil {
+		next := form.CreatedAt.Add(Forms(r).Cooldown)
+		if next.After(time.Now().UTC()) {
+			Log(r).Debugf("Form submitted time: %s; next available time: %s", form.CreatedAt.String(), next)
+			ape.RenderErr(w, problems.TooManyRequests())
+			return
+		}
 	}
 
 	userData := req.Data.Attributes
@@ -66,9 +67,8 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		Image:     userData.Image,
 	}
 
-	err = Forms(r).SendForms(*form)
-	if err != nil {
-		Log(r).WithError(err).Error("failed to send form")
+	if err = Forms(r).SendForms(*form); err != nil {
+		Log(r).WithError(err).Error("Failed to send form")
 		form.Status = data.AcceptedStatus
 	}
 

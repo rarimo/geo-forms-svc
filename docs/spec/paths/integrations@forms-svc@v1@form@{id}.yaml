@@ -2,7 +2,9 @@ get:
   tags:
     - User form
   summary: Get form
-  description: Get user form by uuid with prcessing status
+  description: |
+    Get user form by UUID with status.
+    User must be authorized, but `is_verified` field is not required in JWT.
   operationId: getForm
   parameters:
     - $ref: '#/components/parameters/pathID'
