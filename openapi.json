@@ -18,7 +18,7 @@
           "User form"
         ],
         "summary": "Get form",
-        "description": "Get user form by uuid with prcessing status",
+        "description": "Get user form by UUID with status.\nUser must be authorized, but `is_verified` field is not required in JWT.\n",
         "operationId": "getForm",
         "parameters": [
           {
@@ -65,7 +65,7 @@
           "User form"
         ],
         "summary": "Submit user answers",
-        "description": "Only a user with a confirmed passport can send the form.\nA delay before sending the next form can also be configured.\n",
+        "description": "Send user answers and return their current status.\n\nOnly a user with a confirmed passport can send the form.\nThere is a configurable delay before the same user\ncan submit another form.\n",
         "operationId": "submitForm",
         "security": [
           {
@@ -252,7 +252,7 @@
                   },
                   "image": {
                     "type": "string",
-                    "description": "base64 encoded image with max size 12 MB"
+                    "description": "base64 encoded image with max size 4 MB"
                   }
                 }
               }
@@ -351,7 +351,7 @@
                   },
                   "image": {
                     "type": "string",
-                    "description": "base64 encoded image with max size 12 MB"
+                    "description": "base64 encoded image with max size 4 MB"
                   }
                 }
               }

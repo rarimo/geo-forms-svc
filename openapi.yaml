@@ -12,7 +12,9 @@ paths:
       tags:
         - User form
       summary: Get form
-      description: Get user form by uuid with prcessing status
+      description: |
+        Get user form by UUID with status.
+        User must be authorized, but `is_verified` field is not required in JWT.
       operationId: getForm
       parameters:
         - $ref: '#/components/parameters/pathID'
@@ -42,8 +44,11 @@ paths:
         - User form
       summary: Submit user answers
       description: |
+        Send user answers and return their current status.
+
         Only a user with a confirmed passport can send the form.
-        A delay before sending the next form can also be configured.
+        There is a configurable delay before the same user
+        can submit another form.
       operationId: submitForm
       security:
         - BearerAuth:
@@ -175,7 +180,7 @@ components:
                   type: string
                 image:
                   type: string
-                  description: base64 encoded image with max size 12 MB
+                  description: base64 encoded image with max size 4 MB
     FormKey:
       type: object
       required:
@@ -243,7 +248,7 @@ components:
                   type: string
                 image:
                   type: string
-                  description: base64 encoded image with max size 12 MB
+                  description: base64 encoded image with max size 4 MB
     SubmitFormKey:
       type: object
       required:
