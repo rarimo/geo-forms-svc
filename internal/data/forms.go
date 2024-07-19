@@ -6,7 +6,6 @@ import (
 
 const (
 	AcceptedStatus  = "accepted"
-	ResendingStatus = "resending"
 	ProcessedStatus = "processed"
 )
 
@@ -38,7 +37,7 @@ type FormsQ interface {
 
 	Select() ([]*Form, error)
 	Get() (*Form, error)
-	// last returns the most recent form
+	// Last returns the most recent form after applying filters.
 	Last() (*Form, error)
 	Limit(uint64) FormsQ
 

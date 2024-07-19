@@ -23,18 +23,16 @@ type Forms struct {
 	db                *sql.DB
 }
 
-type formsConfig struct {
-	Cooldown          time.Duration `fig:"cooldown,required"`
-	Period            time.Duration `fig:"period,required"`
-	MinAbnormalPeriod time.Duration `fig:"min_abnormal_period,required"`
-	MaxAbnormalPeriod time.Duration `fig:"max_abnormal_period,required"`
-	ResendFormsCount  uint64        `fig:"resend_forms_count,required"`
-	URL               string        `fig:"url,required"`
-}
-
 func (c *config) Forms() *Forms {
 	return c.forms.Do(func() interface{} {
-		var cfg formsConfig
+		var cfg struct {
+			Cooldown          time.Duration `fig:"cooldown,required"`
+			Period            time.Duration `fig:"period,required"`
+			MinAbnormalPeriod time.Duration `fig:"min_abnormal_period,required"`
+			MaxAbnormalPeriod time.Duration `fig:"max_abnormal_period,required"`
+			ResendFormsCount  uint64        `fig:"resend_forms_count,required"`
+			URL               string        `fig:"url,required"`
+		}
 
 		err := figure.Out(&cfg).
 			From(kv.MustGetStringMap(c.getter, "forms")).
@@ -59,6 +57,7 @@ func (c *config) Forms() *Forms {
 	}).(*Forms)
 }
 
+// SendForms inserts the forms to another remote database, which URL is provided in config.
 func (f *Forms) SendForms(forms ...*data.Form) error {
 	if len(forms) == 0 {
 		return nil
