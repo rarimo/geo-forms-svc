@@ -9,6 +9,7 @@ post:
     other information that should be used to upload image 
     in S3 Storage. The name is generated on the server side.
     'verified: true' must be specified in the JWT.
+    The cooldown of this endpoint is the same as in the submit form.
   operationId: uploadImage
   security:
     - BearerAuth: []
