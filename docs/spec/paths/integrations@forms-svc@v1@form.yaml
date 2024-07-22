@@ -3,13 +3,11 @@ post:
     - User form
   summary: Submit lightweight user answers
   description: |
-    Send user answers and return their current status.
+    Sending the filled form. Requires created empty form
+    linked to the name of the file with the photo. 
+    Return form current status.
 
-    The image is a link to s3 storage
-    
-    Only a user with a confirmed passport can send the form ('verified: true' in JWT).
-    There is a configurable delay before the same user
-    can submit another form.
+    The image is a link to s3 storage    
   operationId: lightweightSubmitForm
   security:
     - BearerAuth: []
@@ -34,11 +32,13 @@ post:
       $ref: '#/components/responses/invalidParameter'
     401:
       $ref: '#/components/responses/invalidAuth'
-    429:
-      description: "It is necessary to wait some time before sending the next form"
+    403:
+      description: "Empty form absent for user, but already exists processed or accepted forms"
       content:
         application/vnd.api+json:
           schema:
             $ref: '#/components/schemas/Errors'
+    404:
+      $ref: '#/components/responses/notFound'
     500:
       $ref: '#/components/responses/internalError'
