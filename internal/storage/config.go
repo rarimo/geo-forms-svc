@@ -28,6 +28,8 @@ type storager struct {
 	getter kv.Getter
 }
 
+// Storage works only with DigitalOceanSpaces.
+// Other providers are not supported.
 func (c *storager) Storage() *Storage {
 	return c.once.Do(func() interface{} {
 		var envCfg struct {
