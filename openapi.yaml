@@ -32,7 +32,7 @@ paths:
                 - data
               properties:
                 data:
-                  $ref: '#/components/schemas/SubmitForm'
+                  $ref: '#/components/schemas/Form'
       responses:
         '200':
           description: Success
