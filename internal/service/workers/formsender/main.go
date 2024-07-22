@@ -30,7 +30,7 @@ func Run(ctx context.Context, cfg config.Config) {
 			return nil
 		}
 
-		for _, form := range forms {
+		for i, form := range forms {
 			if form.Image != nil {
 				continue
 			}
@@ -40,7 +40,7 @@ func Run(ctx context.Context, cfg config.Config) {
 				return fmt.Errorf("failed to parse image url: %w", err)
 			}
 
-			form.Image, err = storage.GetImageBase64(imageURL)
+			forms[i].Image, err = storage.GetImageBase64(imageURL)
 			if err != nil {
 				return fmt.Errorf("failed to get image base64: %w", err)
 			}
