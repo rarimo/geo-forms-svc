@@ -7,17 +7,108 @@ servers:
   - url: 'https://api.demo.tokend.io'
     description: TokenD Developer Environment
 paths:
-  '/integrations/forms-svc/v1/form/{id}':
+  /integrations/forms-svc/v1/form:
+    post:
+      tags:
+        - User form
+      summary: Submit lightweight user answers
+      description: |
+        Send user answers and return their current status.
+
+        The image is a link to s3 storage
+
+        Only a user with a confirmed passport can send the form ('verified: true' in JWT).
+        There is a configurable delay before the same user
+        can submit another form.
+      operationId: lightweightSubmitForm
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/SubmitForm'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/FormStatus'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '429':
+          description: It is necessary to wait some time before sending the next form
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          $ref: '#/components/responses/internalError'
+  /integrations/forms-svc/v1/form/submit:
+    post:
+      tags:
+        - User form
+      summary: Submit user answers
+      description: |
+        Send user answers and return their current status.
+
+        The image is a base64 string.
+
+        Only a user with a confirmed passport can send the form ('verified: true' in JWT).
+        There is a configurable delay before the same user
+        can submit another form.
+      operationId: submitForm
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/Form'
+      responses:
+        '200':
+          description: Success. All fields except image will be returned.
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '429':
+          description: It is necessary to wait some time before sending the next form
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          $ref: '#/components/responses/internalError'
+  '/integrations/forms-svc/v1/status/{id}':
     get:
       tags:
         - User form
-      summary: Get form
+      summary: Get form status
       description: |
-        Get user form by UUID with status.
-        User must be authorized, but `is_verified` field is not required in JWT.
-      operationId: getForm
+        Get form status by UUID.
+      operationId: getFormStatus
       parameters:
         - $ref: '#/components/parameters/pathID'
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: Success
@@ -38,48 +129,36 @@ paths:
           $ref: '#/components/responses/notFound'
         '500':
           $ref: '#/components/responses/internalError'
-  /integrations/forms-svc/v1/form/submit:
-    post:
+  /integrations/forms-svc/v1/status/last:
+    get:
       tags:
         - User form
-      summary: Submit user answers
+      summary: Get last form status
       description: |
-        Send user answers and return their current status.
-
-        Only a user with a confirmed passport can send the form.
-        There is a configurable delay before the same user
-        can submit another form.
-      operationId: submitForm
+        Get last form status filled out by the user nullifier.
+      operationId: getLastFormStatus
+      parameters:
+        - $ref: '#/components/parameters/pathNullifier'
       security:
-        - BearerAuth:
-            - 'verified: true'
-      requestBody:
-        content:
-          application/vnd.api+json:
-            schema:
-              type: object
-              required:
-                - data
-              properties:
-                data:
-                  $ref: '#/components/schemas/SubmitForm'
+        - BearerAuth: []
       responses:
         '200':
           description: Success
           content:
             application/vnd.api+json:
               schema:
-                $ref: '#/components/schemas/Form'
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FormStatus'
         '400':
           $ref: '#/components/responses/invalidParameter'
         '401':
           $ref: '#/components/responses/invalidAuth'
-        '429':
-          description: It is necessary to wait some time before sending the next form
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: '#/components/schemas/Errors'
+        '404':
+          $ref: '#/components/responses/notFound'
         '500':
           $ref: '#/components/responses/internalError'
 components:
@@ -128,7 +207,6 @@ components:
             attributes:
               type: object
               required:
-                - status
                 - name
                 - surname
                 - id_num
@@ -152,39 +230,54 @@ components:
                   description: |
                     Accepted - the data was saved by the service for further processing
                     Processed - the data is processed and stored
+                    Read-only.
                 name:
                   type: string
+                  example: Hilary
                 surname:
                   type: string
+                  example: Cabe
                 id_num:
                   type: string
+                  example: '3736297649'
                 birthday:
                   type: string
+                  example: 27/6/1988
                 citizen:
                   type: string
+                  example: Georgian
                 visited:
                   type: string
+                  example: 18/07/2024
                 purpose:
                   type: string
+                  example: Make documents
                 country:
                   type: string
+                  example: Georgia
                 city:
                   type: string
+                  example: Kutaisi
                 address:
                   type: string
+                  example: 'Central street, 1'
                 postal:
                   type: string
+                  example: '21626'
                 phone:
                   type: string
+                  example: '+13165282105'
                 email:
-                  type: string
+                  type: cabehilary88@gmail.com
                 image:
                   type: string
-                  description: base64 encoded image with max size 4 MB
+                  description: |
+                    base64 encoded image with max size 4 MB or
+                    URL for S3 storage with image up to 4 mb
+                  example: 'https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg'
     FormKey:
       type: object
       required:
-        - id
         - type
       properties:
         id:
@@ -194,76 +287,59 @@ components:
           type: string
           enum:
             - form
-    SubmitForm:
+            - submit_form
+    FormStatus:
       allOf:
-        - $ref: '#/components/schemas/SubmitFormKey'
+        - $ref: '#/components/schemas/FormStatusKey'
         - type: object
-          x-go-is-request: true
           required:
             - attributes
           properties:
             attributes:
               type: object
               required:
-                - name
-                - surname
-                - id_num
-                - birthday
-                - citizen
-                - visited
-                - purpose
-                - country
-                - city
-                - address
-                - postal
-                - phone
-                - email
-                - image
+                - status
+                - created_at
+                - next_form_at
+                - until_next_form
               properties:
-                name:
+                status:
                   type: string
-                surname:
-                  type: string
-                id_num:
-                  type: string
-                birthday:
-                  type: string
-                citizen:
-                  type: string
-                visited:
-                  type: string
-                purpose:
-                  type: string
-                country:
-                  type: string
-                city:
-                  type: string
-                address:
-                  type: string
-                postal:
-                  type: string
-                phone:
-                  type: string
-                email:
-                  type: string
-                image:
-                  type: string
-                  description: base64 encoded image with max size 4 MB
-    SubmitFormKey:
+                  enum:
+                    - accepted
+                    - processed
+                  description: |
+                    Accepted - the data was saved by the service for further processing
+                    Processed - the data is processed and stored
+                created_at:
+                  type: integer
+                  format: int64
+                  example: 1721392530
+                  description: Form submission time. Unix time.
+                processed_at:
+                  type: integer
+                  format: int64
+                  example: 1721392530
+                  description: Form processing time. Absent if the status is accepted. Unix time.
+                next_form_at:
+                  type: integer
+                  format: int64
+                  example: 1721392530
+                  description: Time of the next possible form submission. Unix time.
+                until_next_form:
+                  type: integer
+                  format: int64
+                  example: 120
+                  description: Time until the next form submission in seconds.
+    FormStatusKey:
       type: object
       required:
-        - id
         - type
       properties:
-        id:
-          type: string
-          example: 0x123...abc
-          pattern: '^0x[0-9a-fA-F]{64}$'
-          description: User nullifier 32 bytes
         type:
           type: string
           enum:
-            - submit_form
+            - form_status
   responses:
     internalError:
       description: Internal server error
@@ -327,7 +403,6 @@ components:
         description: 'Order of records on the page. If sortingParam is not specified, order of records is by default sorted by ID.'
   securitySchemes:
     BearerAuth:
-      BearerAuth:
-        type: http
-        scheme: bearer
-        bearerFormat: JWT
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

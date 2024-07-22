@@ -12,17 +12,148 @@
     }
   ],
   "paths": {
-    "/integrations/forms-svc/v1/form/{id}": {
+    "/integrations/forms-svc/v1/form": {
+      "post": {
+        "tags": [
+          "User form"
+        ],
+        "summary": "Submit lightweight user answers",
+        "description": "Send user answers and return their current status.\n\nThe image is a link to s3 storage\n\nOnly a user with a confirmed passport can send the form ('verified: true' in JWT).\nThere is a configurable delay before the same user\ncan submit another form.\n",
+        "operationId": "lightweightSubmitForm",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/SubmitForm"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/invalidAuth"
+          },
+          "429": {
+            "description": "It is necessary to wait some time before sending the next form",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    },
+    "/integrations/forms-svc/v1/form/submit": {
+      "post": {
+        "tags": [
+          "User form"
+        ],
+        "summary": "Submit user answers",
+        "description": "Send user answers and return their current status.\n\nThe image is a base64 string.\n\nOnly a user with a confirmed passport can send the form ('verified: true' in JWT).\nThere is a configurable delay before the same user\ncan submit another form.\n",
+        "operationId": "submitForm",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/Form"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success. All fields except image will be returned.",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Form"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/invalidAuth"
+          },
+          "429": {
+            "description": "It is necessary to wait some time before sending the next form",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    },
+    "/integrations/forms-svc/v1/status/{id}": {
       "get": {
         "tags": [
           "User form"
         ],
-        "summary": "Get form",
-        "description": "Get user form by UUID with status.\nUser must be authorized, but `is_verified` field is not required in JWT.\n",
-        "operationId": "getForm",
+        "summary": "Get form status",
+        "description": "Get form status by UUID.\n",
+        "operationId": "getFormStatus",
         "parameters": [
           {
             "$ref": "#/components/parameters/pathID"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
           }
         ],
         "responses": {
@@ -59,45 +190,39 @@
         }
       }
     },
-    "/integrations/forms-svc/v1/form/submit": {
-      "post": {
+    "/integrations/forms-svc/v1/status/last": {
+      "get": {
         "tags": [
           "User form"
         ],
-        "summary": "Submit user answers",
-        "description": "Send user answers and return their current status.\n\nOnly a user with a confirmed passport can send the form.\nThere is a configurable delay before the same user\ncan submit another form.\n",
-        "operationId": "submitForm",
-        "security": [
+        "summary": "Get last form status",
+        "description": "Get last form status filled out by the user nullifier.\n",
+        "operationId": "getLastFormStatus",
+        "parameters": [
           {
-            "BearerAuth": [
-              "verified: true"
-            ]
+            "$ref": "#/components/parameters/pathNullifier"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/vnd.api+json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "$ref": "#/components/schemas/SubmitForm"
-                  }
-                }
-              }
-            }
+        "security": [
+          {
+            "BearerAuth": []
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Form"
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/FormStatus"
+                    }
+                  }
                 }
               }
             }
@@ -108,15 +233,8 @@
           "401": {
             "$ref": "#/components/responses/invalidAuth"
           },
-          "429": {
-            "description": "It is necessary to wait some time before sending the next form",
-            "content": {
-              "application/vnd.api+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Errors"
-                }
-              }
-            }
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "500": {
             "$ref": "#/components/responses/internalError"
@@ -186,7 +304,6 @@
               "attributes": {
                 "type": "object",
                 "required": [
-                  "status",
                   "name",
                   "surname",
                   "id_num",
@@ -209,50 +326,63 @@
                       "accepted",
                       "processed"
                     ],
-                    "description": "Accepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\n"
+                    "description": "Accepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\nRead-only.\n"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Hilary"
                   },
                   "surname": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Cabe"
                   },
                   "id_num": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "3736297649"
                   },
                   "birthday": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "27/6/1988"
                   },
                   "citizen": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Georgian"
                   },
                   "visited": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "18/07/2024"
                   },
                   "purpose": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Make documents"
                   },
                   "country": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Georgia"
                   },
                   "city": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Kutaisi"
                   },
                   "address": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Central street, 1"
                   },
                   "postal": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "21626"
                   },
                   "phone": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "+13165282105"
                   },
                   "email": {
-                    "type": "string"
+                    "type": "cabehilary88@gmail.com"
                   },
                   "image": {
                     "type": "string",
-                    "description": "base64 encoded image with max size 4 MB"
+                    "description": "base64 encoded image with max size 4 MB or\nURL for S3 storage with image up to 4 mb\n",
+                    "example": "https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg"
                   }
                 }
               }
@@ -263,7 +393,6 @@
       "FormKey": {
         "type": "object",
         "required": [
-          "id",
           "type"
         ],
         "properties": {
@@ -274,19 +403,19 @@
           "type": {
             "type": "string",
             "enum": [
-              "form"
+              "form",
+              "submit_form"
             ]
           }
         }
       },
-      "SubmitForm": {
+      "FormStatus": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/SubmitFormKey"
+            "$ref": "#/components/schemas/FormStatusKey"
           },
           {
             "type": "object",
-            "x-go-is-request": true,
             "required": [
               "attributes"
             ],
@@ -294,64 +423,43 @@
               "attributes": {
                 "type": "object",
                 "required": [
-                  "name",
-                  "surname",
-                  "id_num",
-                  "birthday",
-                  "citizen",
-                  "visited",
-                  "purpose",
-                  "country",
-                  "city",
-                  "address",
-                  "postal",
-                  "phone",
-                  "email",
-                  "image"
+                  "status",
+                  "created_at",
+                  "next_form_at",
+                  "until_next_form"
                 ],
                 "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "surname": {
-                    "type": "string"
-                  },
-                  "id_num": {
-                    "type": "string"
-                  },
-                  "birthday": {
-                    "type": "string"
-                  },
-                  "citizen": {
-                    "type": "string"
-                  },
-                  "visited": {
-                    "type": "string"
-                  },
-                  "purpose": {
-                    "type": "string"
-                  },
-                  "country": {
-                    "type": "string"
-                  },
-                  "city": {
-                    "type": "string"
-                  },
-                  "address": {
-                    "type": "string"
-                  },
-                  "postal": {
-                    "type": "string"
-                  },
-                  "phone": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "image": {
+                  "status": {
                     "type": "string",
-                    "description": "base64 encoded image with max size 4 MB"
+                    "enum": [
+                      "accepted",
+                      "processed"
+                    ],
+                    "description": "Accepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\n"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1721392530,
+                    "description": "Form submission time. Unix time."
+                  },
+                  "processed_at": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1721392530,
+                    "description": "Form processing time. Absent if the status is accepted. Unix time."
+                  },
+                  "next_form_at": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1721392530,
+                    "description": "Time of the next possible form submission. Unix time."
+                  },
+                  "until_next_form": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 120,
+                    "description": "Time until the next form submission in seconds."
                   }
                 }
               }
@@ -359,23 +467,16 @@
           }
         ]
       },
-      "SubmitFormKey": {
+      "FormStatusKey": {
         "type": "object",
         "required": [
-          "id",
           "type"
         ],
         "properties": {
-          "id": {
-            "type": "string",
-            "example": "0x123...abc",
-            "pattern": "^0x[0-9a-fA-F]{64}$",
-            "description": "User nullifier 32 bytes"
-          },
           "type": {
             "type": "string",
             "enum": [
-              "submit_form"
+              "form_status"
             ]
           }
         }
@@ -471,11 +572,9 @@
     },
     "securitySchemes": {
       "BearerAuth": {
-        "BearerAuth": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
-        }
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
