@@ -78,7 +78,7 @@ func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 		URL: object,
 	}
 
-	components := DOSpacesURLRegexp.FindStringSubmatch(object.String())
+	components := doSpacesURLRegexp.FindStringSubmatch(object.String())
 	if components == nil {
 		return nil, ErrURLRegexp
 	}
