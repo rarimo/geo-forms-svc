@@ -78,7 +78,7 @@ func SubmitLightweightForm(w http.ResponseWriter, r *http.Request) {
 		Phone:     userData.Phone,
 		Email:     userData.Email,
 		Image:     nil,
-		ImageURL:  sql.NullString{userData.Image, true},
+		ImageURL:  sql.NullString{String: userData.Image, Valid: true},
 	}
 
 	formStatus, err = FormsQ(r).Insert(form)

@@ -13,7 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	_ "github.com/go-sql-driver/mysql"
 	"gitlab.com/distributed_lab/dig"
 	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/kv"
@@ -24,10 +23,10 @@ var DOSpacesURLRegexp = regexp.MustCompile(`^https:\/\/(.+?)\.(.+?)(?:\.cdn)?\.d
 const maxImageSize = 1 << 22 // 4mb
 
 var (
-	ImageTooLargeError      = fmt.Errorf("too large image, must be not greater than %d bytes", maxImageSize)
-	IncorrectImageTypeError = fmt.Errorf("incorrect object type, must be image/png or image/jpeg")
-	URLRegexpError          = fmt.Errorf("url don't match regexp")
-	BucketNotAllowedError   = fmt.Errorf("bucket not allowed")
+	ErrImageTooLarge      = fmt.Errorf("too large image, must be not greater than %d bytes", maxImageSize)
+	ErrIncorrectImageType = fmt.Errorf("incorrect object type, must be image/png or image/jpeg")
+	ErrURLRegexp          = fmt.Errorf("url don't match regexp")
+	ErrBucketNotAllowed   = fmt.Errorf("bucket not allowed")
 )
 
 type Storage struct {
@@ -117,7 +116,7 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 				return nil
 			}
 		}
-		return BucketNotAllowedError
+		return ErrBucketNotAllowed
 	}() != nil {
 		return fmt.Errorf("bucket=%s: %w", spacesURL.Bucket, err)
 	}
@@ -132,11 +131,11 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 	}
 
 	if *output.ContentType != "image/jpeg" && *output.ContentType != "image/png" {
-		return IncorrectImageTypeError
+		return ErrIncorrectImageType
 	}
 
 	if *output.ContentLength > maxImageSize {
-		return ImageTooLargeError
+		return ErrImageTooLarge
 	}
 
 	return nil
@@ -156,7 +155,7 @@ func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 
 	components := DOSpacesURLRegexp.FindStringSubmatch(object.String())
 	if components == nil {
-		return nil, URLRegexpError
+		return nil, ErrURLRegexp
 	}
 
 	// never panic because of regexp validation
@@ -168,10 +167,10 @@ func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 }
 
 func IsBadRequestError(err error) bool {
-	if errors.Is(err, ImageTooLargeError) &&
-		errors.Is(err, IncorrectImageTypeError) &&
-		errors.Is(err, URLRegexpError) &&
-		errors.Is(err, BucketNotAllowedError) {
+	if errors.Is(err, ErrImageTooLarge) &&
+		errors.Is(err, ErrIncorrectImageType) &&
+		errors.Is(err, ErrURLRegexp) &&
+		errors.Is(err, ErrBucketNotAllowed) {
 		return true
 	}
 	return false
