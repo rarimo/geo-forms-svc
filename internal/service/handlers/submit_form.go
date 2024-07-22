@@ -8,6 +8,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/rarimo/geo-auth-svc/pkg/auth"
 	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
 	"github.com/rarimo/geo-forms-svc/internal/storage"
@@ -23,6 +24,10 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
+	if !auth.Authenticates(UserClaims(r), auth.VerifiedGrant(nullifier)) {
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
 
 	lastForm, err := FormsQ(r).Last(nullifier)
 	if err != nil {

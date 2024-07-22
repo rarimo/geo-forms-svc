@@ -18,8 +18,8 @@ forms:
 
 storage:
   endpoint: https://fra1.digitaloceanspaces.com
-  allowed_buckets:
-    - bucket
+  bucket: bucket
+  presigned_url_expiration: 3m
 
 auth:
   addr: http://127.0.0.1:5000

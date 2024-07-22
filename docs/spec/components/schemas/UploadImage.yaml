@@ -1,0 +1,23 @@
+allOf:
+  - $ref: '#/components/schemas/UploadImageKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - content_type
+          - content_length
+        properties:
+          content_type:
+            type: string
+            example: image/png
+            description: Allowed content-type is `image/png` or `image/jpeg`
+          content_length:
+            type: integer
+            format: int64
+            example: 150000
+            description: Image size. It cannot be more than 4 megabytes.
+            

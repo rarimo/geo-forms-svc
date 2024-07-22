@@ -8,7 +8,9 @@ type ResourceType string
 
 // List of ResourceType
 const (
-	FORM        ResourceType = "form"
-	SUBMIT_FORM ResourceType = "submit_form"
-	FORM_STATUS ResourceType = "form_status"
+	FORM                  ResourceType = "form"
+	SUBMIT_FORM           ResourceType = "submit_form"
+	FORM_STATUS           ResourceType = "form_status"
+	UPLOAD_IMAGE          ResourceType = "upload_image"
+	UPLOAD_IMAGE_RESPONSE ResourceType = "upload_image_response"
 )

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -43,8 +44,9 @@ func (c *storager) Storage() *Storage {
 		}
 
 		var cfg struct {
-			Endpoint       string   `fig:"endpoint,required"`
-			AllowedBuckets []string `fig:"allowed_buckets,required"`
+			Endpoint               string         `fig:"endpoint,required"`
+			Bucket                 string         `fig:"bucket,required"`
+			PresignedURLExpiration *time.Duration `fig:"presigned_url_expiration"`
 		}
 
 		err = figure.Out(&cfg).
@@ -52,6 +54,10 @@ func (c *storager) Storage() *Storage {
 			Please()
 		if err != nil {
 			panic(fmt.Errorf("failed to figure out s3 storage config: %w", err))
+		}
+
+		if cfg.PresignedURLExpiration == nil {
+			cfg.PresignedURLExpiration = &defaultPresignedURLExpiration
 		}
 
 		s3Config := &aws.Config{
@@ -69,8 +75,9 @@ func (c *storager) Storage() *Storage {
 		s3Client := s3.New(newSession)
 
 		return &Storage{
-			client:         s3Client,
-			allowedBuckets: cfg.AllowedBuckets,
+			client:                 s3Client,
+			bucket:                 cfg.Bucket,
+			presignedURLExpiration: *cfg.PresignedURLExpiration,
 		}
 	}).(*Storage)
 }

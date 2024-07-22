@@ -12,7 +12,7 @@ import (
 )
 
 // 4 b64 letters encode 3 bytes, max image size = 12 MB -> (12/3)*4 * (1 << 20)
-const maxImageSize = (1 << 20) * 16
+const maxBase64ImageSize = (1 << 20) * 16
 
 func NewLegacySubmitForm(r *http.Request) (req resources.SubmitFormRequest, err error) {
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -35,7 +35,7 @@ func NewLegacySubmitForm(r *http.Request) (req resources.SubmitFormRequest, err 
 		"data/attributes/postal":   validation.Validate(req.Data.Attributes.Postal, validation.Required),
 		"data/attributes/phone":    validation.Validate(req.Data.Attributes.Phone, validation.Required),
 		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`))),
-		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.Base64, validation.Length(0, maxImageSize)),
+		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.Base64, validation.Length(0, maxBase64ImageSize)),
 	}
 
 	return req, errs.Filter()

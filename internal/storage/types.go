@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 )
@@ -17,11 +18,14 @@ var (
 	ErrIncorrectImageType = fmt.Errorf("incorrect object type, must be image/png or image/jpeg")
 	ErrURLRegexp          = fmt.Errorf("url don't match regexp")
 	ErrBucketNotAllowed   = fmt.Errorf("bucket not allowed")
+
+	defaultPresignedURLExpiration = 5 * time.Minute
 )
 
 type Storage struct {
-	client         *s3.S3
-	allowedBuckets []string
+	client                 *s3.S3
+	bucket                 string
+	presignedURLExpiration time.Duration
 }
 
 type SpacesURL struct {

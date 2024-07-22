@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rarimo/geo-auth-svc/pkg/auth"
 	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
 	"github.com/rarimo/geo-forms-svc/resources"
@@ -20,6 +21,10 @@ func LegacySubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
+	if !auth.Authenticates(UserClaims(r), auth.VerifiedGrant(nullifier)) {
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
 
 	formStatus, err := FormsQ(r).Last(nullifier)
 	if err != nil {

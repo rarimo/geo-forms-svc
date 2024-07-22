@@ -12,7 +12,7 @@ type FormAttributes struct {
 	Country  string `json:"country"`
 	Email    string `json:"email"`
 	IdNum    string `json:"id_num"`
-	// base64 encoded image with max size 4 MB
+	// base64 encoded image with max size 4 MB or URL for S3 storage with image up to 4 mb
 	Image   string `json:"image"`
 	Name    string `json:"name"`
 	Phone   string `json:"phone"`
