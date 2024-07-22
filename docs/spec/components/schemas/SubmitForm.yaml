@@ -31,10 +31,12 @@ allOf:
             type: string
           birthday:
             type: string
+            description: Date formated as DD/MM/YYYY
           citizen:
             type: string
           visited:
             type: string
+            description: Date formated as DD/MM/YYYY
           purpose:
             type: string
           country:
@@ -49,6 +51,11 @@ allOf:
             type: string
           email:
             type: string
+            pattern: '[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}'
           image:
             type: string
-            description: base64 encoded image with max size 4 MB
+            description: |
+              For default endpoint:
+                base64 encoded image with max size 4 MB;
+              For lightweight endpoint:
+                link to the image in s3 storage;

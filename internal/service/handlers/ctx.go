@@ -17,6 +17,7 @@ const (
 	userClaimsCtxKey
 	formsQCtxKey
 	formsCtxKey
+	storageCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -57,4 +58,14 @@ func CtxForms(cfg *config.Forms) func(context.Context) context.Context {
 
 func Forms(r *http.Request) *config.Forms {
 	return r.Context().Value(formsCtxKey).(*config.Forms)
+}
+
+func CtxStorage(cfg *config.Storage) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, storageCtxKey, cfg)
+	}
+}
+
+func Storage(r *http.Request) *config.Storage {
+	return r.Context().Value(storageCtxKey).(*config.Storage)
 }

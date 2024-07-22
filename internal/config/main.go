@@ -14,6 +14,7 @@ type Config interface {
 	auth.Auther
 
 	Forms() *Forms
+	Storage() *Storage
 }
 
 type config struct {
@@ -22,7 +23,8 @@ type config struct {
 	comfig.Listenerer
 	auth.Auther
 
-	forms comfig.Once
+	forms   comfig.Once
+	storage comfig.Once
 
 	getter kv.Getter
 }

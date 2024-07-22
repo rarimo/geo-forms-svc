@@ -4,4 +4,4 @@ required:
 properties:
   type:
     type: string
-    enum: [ submit_form ]
+    enum: [ form_status ]

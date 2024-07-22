@@ -1,19 +1,22 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/rarimo/geo-forms-svc/internal/config"
 	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
-	"github.com/rarimo/geo-forms-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
 
-func SubmitForm(w http.ResponseWriter, r *http.Request) {
-	req, err := requests.NewSubmitForm(r)
+func SubmitLightweightForm(w http.ResponseWriter, r *http.Request) {
+	req, err := requests.NewSubmitLightweightForm(r)
 	if err != nil {
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
@@ -37,10 +40,30 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	imageURL, err := url.Parse(req.Data.Attributes.Image)
+	if err != nil {
+		Log(r).WithError(err).Errorf("Failed to parse image URL %s", req.Data.Attributes.Image)
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	if err = Storage(r).ValidateImage(imageURL); err != nil {
+		if config.IsBadRequestError(err) {
+			ape.RenderErr(w, problems.BadRequest(validation.Errors{
+				"image": err,
+			})...)
+			return
+		}
+
+		Log(r).WithError(err).Error("Failed to validate image")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	userData := req.Data.Attributes
 	form := &data.Form{
 		Nullifier: nullifier,
-		Status:    data.ProcessedStatus,
+		Status:    data.AcceptedStatus,
 		Name:      userData.Name,
 		Surname:   userData.Surname,
 		IDNum:     userData.IdNum,
@@ -54,34 +77,18 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		Postal:    userData.Postal,
 		Phone:     userData.Phone,
 		Email:     userData.Email,
-		Image:     &userData.Image,
-	}
-
-	if err = Forms(r).SendForms(form); err != nil {
-		Log(r).WithError(err).Error("Failed to send form")
-		form.Status = data.AcceptedStatus
+		Image:     nil,
+		ImageURL:  sql.NullString{userData.Image, true},
 	}
 
 	formStatus, err = FormsQ(r).Insert(form)
 	if err != nil {
-		Log(r).WithError(err).Error("Failed to insert form")
+		Log(r).WithError(err).Error("failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	ape.Render(w, newFormResponse(formStatus.ID, formStatus.Status))
-}
+	formStatus.NextFormAt = formStatus.CreatedAt.Add(Forms(r).Cooldown)
 
-func newFormResponse(formID, formStatus string) resources.FormResponse {
-	return resources.FormResponse{
-		Data: resources.Form{
-			Key: resources.Key{
-				ID:   formID,
-				Type: resources.FORM,
-			},
-			Attributes: resources.FormAttributes{
-				Status: formStatus,
-			},
-		},
-	}
+	ape.Render(w, newFormStatusResponse(formStatus))
 }

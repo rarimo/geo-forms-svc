@@ -1,16 +1,16 @@
 post:
   tags:
     - User form
-  summary: Submit user answers
+  summary: Submit lightweight user answers
   description: |
     Send user answers and return their current status.
-    
-    The image is a base64 string.
+
+    The image is a link to s3 storage
     
     Only a user with a confirmed passport can send the form ('verified: true' in JWT).
     There is a configurable delay before the same user
     can submit another form.
-  operationId: submitForm
+  operationId: lightweightSubmitForm
   security:
     - BearerAuth: []
   requestBody:
@@ -25,11 +25,11 @@ post:
               $ref: '#/components/schemas/SubmitForm'
   responses:
     200:
-      description: "Success. All fields except status will be empty."
+      description: "Success"
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/Form'
+            $ref: '#/components/schemas/FormStatus'
     400:
       $ref: '#/components/responses/invalidParameter'
     401:
