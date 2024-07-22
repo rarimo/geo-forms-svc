@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
-	spacesURL, err := ParseDOSpacesURL(object)
+	spacesURL, err := parseDOSpacesURL(object)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
@@ -37,7 +37,7 @@ func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
 }
 
 func (s *Storage) ValidateImage(object *url.URL) error {
-	spacesURL, err := ParseDOSpacesURL(object)
+	spacesURL, err := parseDOSpacesURL(object)
 	if err != nil {
 		return fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
@@ -73,7 +73,7 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 	return nil
 }
 
-func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
+func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 	spacesURL := &SpacesURL{
 		URL: object,
 	}

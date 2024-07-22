@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 
@@ -11,8 +10,7 @@ import (
 	"github.com/rarimo/geo-forms-svc/resources"
 )
 
-// 4 b64 letters encode 3 bytes, max image size = 12 MB -> (12/3)*4 * (1 << 20)
-const maxImageSize = (1 << 20) * 16
+var emailRegexp = regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`)
 
 func NewSubmitForm(r *http.Request) (req resources.SubmitFormRequest, err error) {
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -34,15 +32,9 @@ func NewSubmitForm(r *http.Request) (req resources.SubmitFormRequest, err error)
 		"data/attributes/address":  validation.Validate(req.Data.Attributes.Address, validation.Required),
 		"data/attributes/postal":   validation.Validate(req.Data.Attributes.Postal, validation.Required),
 		"data/attributes/phone":    validation.Validate(req.Data.Attributes.Phone, validation.Required),
-		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`))),
-		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.Base64, validation.Length(0, maxImageSize)),
+		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(emailRegexp)),
+		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.URL),
 	}
 
 	return req, errs.Filter()
-}
-
-func newDecodeError(what string, err error) error {
-	return validation.Errors{
-		what: fmt.Errorf("decode request %s: %w", what, err),
-	}
 }

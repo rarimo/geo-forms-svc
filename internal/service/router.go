@@ -30,8 +30,8 @@ func Run(ctx context.Context, cfg config.Config) {
 			r.Get("/last", handlers.LastStatus)
 		})
 		r.Route("/form", func(r chi.Router) {
-			r.Post("/submit", handlers.SubmitForm)
-			r.Post("/", handlers.SubmitLightweightForm)
+			r.Post("/submit", handlers.LegacySubmitForm)
+			r.Post("/", handlers.SubmitForm)
 		})
 	})
 
