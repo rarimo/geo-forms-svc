@@ -1,0 +1,11 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    description: UUID to check form submission status
+  type:
+    type: string
+    enum: [ upload_image_response ]

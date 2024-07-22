@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -42,14 +43,7 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 		return fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
 
-	found := false
-	for _, bucket := range s.allowedBuckets {
-		if spacesURL.Bucket == bucket {
-			found = true
-			break
-		}
-	}
-	if !found {
+	if spacesURL.Bucket != s.bucket {
 		return ErrBucketNotAllowed
 	}
 
@@ -71,6 +65,23 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) GeneratePutURL(contentType string, contentLength int64) (signedURL, key string, err error) {
+	key = uuid.New().String()
+	req, _ := s.client.PutObjectRequest(&s3.PutObjectInput{
+		Bucket:        &s.bucket,
+		Key:           &key,
+		ContentType:   &contentType,
+		ContentLength: &contentLength,
+	})
+
+	signedURL, err = req.Presign(s.presignedURLExpiration)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	return signedURL, key, nil
 }
 
 func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
