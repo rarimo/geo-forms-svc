@@ -42,15 +42,15 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 		return fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
 
-	if func() error {
-		for _, bucket := range s.allowedBuckets {
-			if spacesURL.Bucket == bucket {
-				return nil
-			}
+	found := false
+	for _, bucket := range s.allowedBuckets {
+		if spacesURL.Bucket == bucket {
+			found = true
+			break
 		}
+	}
+	if !found {
 		return ErrBucketNotAllowed
-	}() != nil {
-		return fmt.Errorf("bucket=%s: %w", spacesURL.Bucket, err)
 	}
 
 	// output can't be nil
