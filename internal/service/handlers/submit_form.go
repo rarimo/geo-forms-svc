@@ -1,14 +1,16 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
-	"github.com/rarimo/geo-auth-svc/pkg/auth"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
-	"github.com/rarimo/geo-forms-svc/resources"
+	"github.com/rarimo/geo-forms-svc/internal/storage"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
@@ -20,37 +22,48 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(UserClaims(r)) == 0 {
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
-
 	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
-	if !auth.Authenticates(UserClaims(r), auth.VerifiedGrant(nullifier)) {
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
 
-	form, err := FormsQ(r).FilterByNullifier(nullifier).Last()
+	lastForm, err := FormsQ(r).Last(nullifier)
 	if err != nil {
 		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if form != nil {
-		next := form.CreatedAt.Add(Forms(r).Cooldown)
+	if lastForm != nil {
+		next := lastForm.CreatedAt.Add(Forms(r).Cooldown)
 		if next.After(time.Now().UTC()) {
-			Log(r).Debugf("Form submitted time: %s; next available time: %s", form.CreatedAt.String(), next)
+			Log(r).Debugf("Form submitted time: %s; next available time: %s", lastForm.CreatedAt, next)
 			ape.RenderErr(w, problems.TooManyRequests())
 			return
 		}
 	}
 
+	imageURL, err := url.Parse(req.Data.Attributes.Image)
+	if err != nil {
+		Log(r).WithError(err).Errorf("Failed to parse image URL %s", req.Data.Attributes.Image)
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	if err = Storage(r).ValidateImage(imageURL); err != nil {
+		if storage.IsBadRequestError(err) {
+			ape.RenderErr(w, problems.BadRequest(validation.Errors{
+				"image": err,
+			})...)
+			return
+		}
+
+		Log(r).WithError(err).Error("Failed to validate image")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	userData := req.Data.Attributes
-	form = &data.Form{
+	form := &data.Form{
 		Nullifier: nullifier,
-		Status:    data.ProcessedStatus,
+		Status:    data.AcceptedStatus,
 		Name:      userData.Name,
 		Surname:   userData.Surname,
 		IDNum:     userData.IdNum,
@@ -64,31 +77,18 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		Postal:    userData.Postal,
 		Phone:     userData.Phone,
 		Email:     userData.Email,
-		Image:     &userData.Image,
+		Image:     nil,
+		ImageURL:  sql.NullString{String: userData.Image, Valid: true},
 	}
 
-	if err = Forms(r).SendForms(form); err != nil {
-		Log(r).WithError(err).Error("Failed to send form")
-		form.Status = data.AcceptedStatus
-	}
-
-	formID, err := FormsQ(r).Insert(form)
+	formStatus, err := FormsQ(r).Insert(form)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	ape.Render(w, newFormResponse(formID))
-}
+	formStatus.NextFormAt = formStatus.CreatedAt.Add(Forms(r).Cooldown)
 
-func newFormResponse(formID string) resources.FormResponse {
-	return resources.FormResponse{
-		Data: resources.Form{
-			Key: resources.Key{
-				ID:   formID,
-				Type: resources.FORM,
-			},
-		},
-	}
+	ape.Render(w, newFormStatusResponse(formStatus))
 }

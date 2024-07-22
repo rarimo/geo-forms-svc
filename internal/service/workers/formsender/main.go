@@ -3,6 +3,7 @@ package formsender
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/rarimo/geo-forms-svc/internal/config"
 	"github.com/rarimo/geo-forms-svc/internal/data"
@@ -18,6 +19,7 @@ type formsQ struct {
 func Run(ctx context.Context, cfg config.Config) {
 	log := cfg.Log().WithField("who", "form-sender")
 	db := formsQ{cfg.DB().Clone()}
+	storage := cfg.Storage()
 
 	running.WithBackOff(ctx, log, "resender", func(context.Context) error {
 		forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).Limit(cfg.Forms().ResendFormsCount).Select()
@@ -26,6 +28,22 @@ func Run(ctx context.Context, cfg config.Config) {
 		}
 		if len(forms) == 0 {
 			return nil
+		}
+
+		for i, form := range forms {
+			if form.Image != nil {
+				continue
+			}
+
+			imageURL, err := url.Parse(form.ImageURL.String)
+			if err != nil {
+				return fmt.Errorf("failed to parse image url: %w", err)
+			}
+
+			forms[i].Image, err = storage.GetImageBase64(imageURL)
+			if err != nil {
+				return fmt.Errorf("failed to get image base64: %w", err)
+			}
 		}
 
 		if err = cfg.Forms().SendForms(forms...); err != nil {

@@ -1,0 +1,41 @@
+allOf:
+  - $ref: '#/components/schemas/FormStatusKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - status
+          - created_at
+          - next_form_at
+          - until_next_form
+        properties:
+          status:
+            type: string
+            enum: [ accepted, processed ]
+            description: |
+              Accepted - the data was saved by the service for further processing
+              Processed - the data is processed and stored
+          created_at:
+            type: integer
+            format: int64
+            example: 1721392530
+            description: Form submission time. Unix time.
+          processed_at:
+            type: integer
+            format: int64
+            example: 1721392530
+            description: Form processing time. Absent if the status is accepted. Unix time.
+          next_form_at:
+            type: integer
+            format: int64
+            example: 1721392530
+            description: Time of the next possible form submission. Unix time.
+          until_next_form:
+            type: integer
+            format: int64
+            example: 120
+            description: Time until the next form submission in seconds.
+          

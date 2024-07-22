@@ -11,6 +11,8 @@
   cd geo-forms-svc
   go build main.go
   export KV_VIPER_FILE=./config.yaml
+  export SPACES_KEY=access_key
+  export SPACES_SECRET=secret_key
   ./main migrate up
   ./main run service
   ```

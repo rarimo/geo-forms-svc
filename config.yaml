@@ -16,5 +16,10 @@ forms:
   resend_forms_count: 1
   url: forms:forms@tcp(127.0.0.1:5441)/forms
 
+storage:
+  endpoint: https://fra1.digitaloceanspaces.com
+  allowed_buckets:
+    - bucket
+
 auth:
   addr: http://127.0.0.1:5000

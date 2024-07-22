@@ -1,6 +1,5 @@
 type: object
 required:
-  - id
   - type
 properties:
   id:
@@ -8,4 +7,4 @@ properties:
     description: UUID for check form submission status
   type:
     type: string
-    enum: [ form ]
+    enum: [ form, submit_form ]

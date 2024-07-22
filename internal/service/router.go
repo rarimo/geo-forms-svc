@@ -20,13 +20,18 @@ func Run(ctx context.Context, cfg config.Config) {
 			handlers.CtxLog(cfg.Log()),
 			handlers.CtxFormsQ(pg.NewForms(cfg.DB().Clone())),
 			handlers.CtxForms(cfg.Forms()),
+			handlers.CtxStorage(cfg.Storage()),
 		),
 	)
 	r.Route("/integrations/geo-forms-svc/v1", func(r chi.Router) {
+		r.Use(handlers.AuthMiddleware(cfg.Auth(), cfg.Log()))
+		r.Route("/status", func(r chi.Router) {
+			r.Get("/{id}", handlers.StatusByID)
+			r.Get("/last", handlers.LastStatus)
+		})
 		r.Route("/form", func(r chi.Router) {
-			r.Use(handlers.AuthMiddleware(cfg.Auth(), cfg.Log()))
-			r.Post("/submit", handlers.SubmitForm)
-			r.Get("/{id}", handlers.GetForm)
+			r.Post("/submit", handlers.LegacySubmitForm)
+			r.Post("/", handlers.SubmitForm)
 		})
 	})
 

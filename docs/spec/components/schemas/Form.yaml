@@ -7,7 +7,6 @@ allOf:
       attributes:
         type: object
         required:
-          - status
           - name
           - surname
           - id_num
@@ -29,32 +28,48 @@ allOf:
             description: |
               Accepted - the data was saved by the service for further processing
               Processed - the data is processed and stored
+              Read-only.
           name:
             type: string
+            example: Hilary
           surname:
             type: string
+            example: Cabe
           id_num:
             type: string
+            example: "3736297649"
           birthday:
             type: string
+            example: 27/6/1988
           citizen:
             type: string
+            example: Georgian
           visited:
             type: string
+            example: 18/07/2024
           purpose:
             type: string
+            example: Make documents
           country:
             type: string
+            example: Georgia
           city:
             type: string
+            example: Kutaisi
           address:
             type: string
+            example: Central street, 1
           postal:
             type: string
+            example: "21626"
           phone:
             type: string
+            example: "+13165282105"
           email:
-            type: string
+            type: cabehilary88@gmail.com
           image:
             type: string
-            description: base64 encoded image with max size 4 MB
+            description: |
+              base64 encoded image with max size 4 MB or
+              URL for S3 storage with image up to 4 mb
+            example: https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg
