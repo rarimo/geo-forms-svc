@@ -182,8 +182,6 @@ paths:
       description: |
         Get last form status filled out by the user nullifier.
       operationId: getLastFormStatus
-      parameters:
-        - $ref: '#/components/parameters/pathNullifier'
       security:
         - BearerAuth: []
       responses:

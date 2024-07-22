@@ -261,11 +261,6 @@
         "summary": "Get last form status",
         "description": "Get last form status filled out by the user nullifier.\n",
         "operationId": "getLastFormStatus",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/pathNullifier"
-          }
-        ],
         "security": [
           {
             "BearerAuth": []
