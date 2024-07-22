@@ -18,8 +18,8 @@ type FormAttributes struct {
 	Phone   string `json:"phone"`
 	Postal  string `json:"postal"`
 	Purpose string `json:"purpose"`
-	// Accepted - the data was saved by the service for further processing Processed - the data is processed and stored
-	Status  string `json:"status"`
-	Surname string `json:"surname"`
-	Visited string `json:"visited"`
+	// Accepted - the data was saved by the service for further processing Processed - the data is processed and stored Read-only.
+	Status  *string `json:"status,omitempty"`
+	Surname string  `json:"surname"`
+	Visited string  `json:"visited"`
 }

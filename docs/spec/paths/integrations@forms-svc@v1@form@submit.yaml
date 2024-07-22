@@ -22,10 +22,10 @@ post:
             - data
           properties:
             data:
-              $ref: '#/components/schemas/SubmitForm'
+              $ref: '#/components/schemas/Form'
   responses:
     200:
-      description: "Success. All fields except status will be empty."
+      description: "Success. All fields except image will be returned."
       content:
         application/vnd.api+json:
           schema:

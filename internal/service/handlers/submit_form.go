@@ -62,25 +62,38 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		form.Status = data.AcceptedStatus
 	}
 
-	formStatus, err = FormsQ(r).Insert(form)
+	_, err = FormsQ(r).Insert(form)
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	ape.Render(w, newFormResponse(formStatus.ID, formStatus.Status))
+	ape.Render(w, newFormResponse(form))
 }
 
-func newFormResponse(formID, formStatus string) resources.FormResponse {
+func newFormResponse(form *data.Form) resources.FormResponse {
 	return resources.FormResponse{
 		Data: resources.Form{
 			Key: resources.Key{
-				ID:   formID,
+				ID:   form.ID,
 				Type: resources.FORM,
 			},
 			Attributes: resources.FormAttributes{
-				Status: formStatus,
+				Status:   &form.Status,
+				Address:  form.Address,
+				Birthday: form.Birthday,
+				Citizen:  form.Citizen,
+				City:     form.City,
+				Country:  form.Country,
+				Email:    form.Email,
+				IdNum:    form.IDNum,
+				Name:     form.Name,
+				Phone:    form.Phone,
+				Postal:   form.Postal,
+				Purpose:  form.Purpose,
+				Surname:  form.Surname,
+				Visited:  form.Visited,
 			},
 		},
 	}

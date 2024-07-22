@@ -8,7 +8,7 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
-func NewFormByID(r *http.Request) (id string, err error) {
+func NewStatusByID(r *http.Request) (id string, err error) {
 	id = chi.URLParam(r, "id")
 
 	err = validation.Errors{

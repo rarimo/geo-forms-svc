@@ -2,27 +2,17 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
-	"github.com/rarimo/geo-auth-svc/pkg/auth"
 	"github.com/rarimo/geo-forms-svc/internal/data"
-	"github.com/rarimo/geo-forms-svc/internal/service/requests"
 	"github.com/rarimo/geo-forms-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
 
-func FormByNullifier(w http.ResponseWriter, r *http.Request) {
-	nullifier, err := requests.NewFormByNullifier(r)
-	if err != nil {
-		ape.RenderErr(w, problems.BadRequest(err)...)
-		return
-	}
-
-	if !auth.Authenticates(UserClaims(r), auth.UserGrant(nullifier)) {
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
+func LastStatus(w http.ResponseWriter, r *http.Request) {
+	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
 
 	formStatus, err := FormsQ(r).Last(nullifier)
 	if err != nil {

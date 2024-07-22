@@ -10,6 +10,8 @@ import (
 	"github.com/rarimo/geo-forms-svc/resources"
 )
 
+var EmailRegexp = regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`)
+
 func NewSubmitLightweightForm(r *http.Request) (req resources.SubmitFormRequest, err error) {
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
 		err = newDecodeError("body", err)
@@ -30,7 +32,7 @@ func NewSubmitLightweightForm(r *http.Request) (req resources.SubmitFormRequest,
 		"data/attributes/address":  validation.Validate(req.Data.Attributes.Address, validation.Required),
 		"data/attributes/postal":   validation.Validate(req.Data.Attributes.Postal, validation.Required),
 		"data/attributes/phone":    validation.Validate(req.Data.Attributes.Phone, validation.Required),
-		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`))),
+		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(EmailRegexp)),
 		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.URL),
 	}
 

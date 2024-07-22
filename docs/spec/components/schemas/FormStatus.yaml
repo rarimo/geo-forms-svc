@@ -22,17 +22,17 @@ allOf:
             type: integer
             format: int64
             example: 1721392530
-            description: Form submission time. Unix UTC time.
+            description: Form submission time. Unix time.
           processed_at:
             type: integer
             format: int64
             example: 1721392530
-            description: Form processing time. Absent if the status is accepted. Unix UTC time.
+            description: Form processing time. Absent if the status is accepted. Unix time.
           next_form_at:
             type: integer
             format: int64
             example: 1721392530
-            description: Time of the next possible form submission. Unix UTC time.
+            description: Time of the next possible form submission. Unix time.
           until_next_form:
             type: integer
             format: int64

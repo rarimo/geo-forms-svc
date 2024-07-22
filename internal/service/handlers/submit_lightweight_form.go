@@ -8,9 +8,9 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/rarimo/geo-forms-svc/internal/config"
 	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
+	"github.com/rarimo/geo-forms-svc/internal/storage"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
@@ -24,17 +24,17 @@ func SubmitLightweightForm(w http.ResponseWriter, r *http.Request) {
 
 	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
 
-	formStatus, err := FormsQ(r).Last(nullifier)
+	lastForm, err := FormsQ(r).Last(nullifier)
 	if err != nil {
 		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if formStatus != nil {
-		next := formStatus.CreatedAt.Add(Forms(r).Cooldown)
+	if lastForm != nil {
+		next := lastForm.CreatedAt.Add(Forms(r).Cooldown)
 		if next.After(time.Now().UTC()) {
-			Log(r).Debugf("Form submitted time: %s; next available time: %s", formStatus.CreatedAt, next)
+			Log(r).Debugf("Form submitted time: %s; next available time: %s", lastForm.CreatedAt, next)
 			ape.RenderErr(w, problems.TooManyRequests())
 			return
 		}
@@ -48,7 +48,7 @@ func SubmitLightweightForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = Storage(r).ValidateImage(imageURL); err != nil {
-		if config.IsBadRequestError(err) {
+		if storage.IsBadRequestError(err) {
 			ape.RenderErr(w, problems.BadRequest(validation.Errors{
 				"image": err,
 			})...)
@@ -81,7 +81,7 @@ func SubmitLightweightForm(w http.ResponseWriter, r *http.Request) {
 		ImageURL:  sql.NullString{String: userData.Image, Valid: true},
 	}
 
-	formStatus, err = FormsQ(r).Insert(form)
+	formStatus, err := FormsQ(r).Insert(form)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
