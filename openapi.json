@@ -138,6 +138,69 @@
         }
       }
     },
+    "/integrations/forms-svc/v1/image": {
+      "post": {
+        "tags": [
+          "User form"
+        ],
+        "summary": "Generate pre-signed url",
+        "description": "Generate pre-signed URL for the provided content-length \nand content-type, with a configurable lifetime. \nThe response contains a URL with a signature and \nother information that should be used to upload image \nin S3 Storage. The name is generated on the server side.\n'verified: true' must be specified in the JWT.\nThe cooldown of this endpoint is the same as in the submit form.\n",
+        "operationId": "uploadImage",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/UploadImage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadImageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameter"
+          },
+          "401": {
+            "$ref": "#/components/responses/invalidAuth"
+          },
+          "429": {
+            "description": "It is necessary to wait some time before sending the next form",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/internalError"
+          }
+        }
+      }
+    },
     "/integrations/forms-svc/v1/status/{id}": {
       "get": {
         "tags": [
@@ -377,7 +440,8 @@
                     "example": "+13165282105"
                   },
                   "email": {
-                    "type": "cabehilary88@gmail.com"
+                    "type": "string",
+                    "example": "cabehilary88@gmail.com"
                   },
                   "image": {
                     "type": "string",
@@ -477,6 +541,103 @@
             "type": "string",
             "enum": [
               "form_status"
+            ]
+          }
+        }
+      },
+      "UploadImage": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UploadImageKey"
+          },
+          {
+            "type": "object",
+            "x-go-is-request": true,
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "content_type",
+                  "content_length"
+                ],
+                "properties": {
+                  "content_type": {
+                    "type": "string",
+                    "example": "image/png",
+                    "description": "Allowed content-type is `image/png` or `image/jpeg`"
+                  },
+                  "content_length": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 150000,
+                    "description": "Image size. It cannot be more than 4 megabytes."
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UploadImageKey": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "upload_image"
+            ]
+          }
+        }
+      },
+      "UploadImageResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UploadImageResponseKey"
+          },
+          {
+            "type": "object",
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Pre-signed URL to upload the file",
+                    "example": "https://bucket.nyc3.digitaloceanspaces.com/somefile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00PTJRCBZELX6E4EEK%2F20240722%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240722T133921Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=940c9058b90e8836b03470fdb51af1f24baabc16a7a83b80352d3d618aa4f23f"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UploadImageResponseKey": {
+        "type": "object",
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID to check form submission status"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "upload_image_response"
             ]
           }
         }
