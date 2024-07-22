@@ -6,7 +6,7 @@ import (
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/rarimo/geo-forms-svc/internal/storage"
 	"github.com/rarimo/geo-forms-svc/resources"
 )
 
@@ -33,7 +33,7 @@ func NewSubmitForm(r *http.Request) (req resources.SubmitFormRequest, err error)
 		"data/attributes/postal":   validation.Validate(req.Data.Attributes.Postal, validation.Required),
 		"data/attributes/phone":    validation.Validate(req.Data.Attributes.Phone, validation.Required),
 		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(emailRegexp)),
-		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.URL),
+		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, validation.Match(storage.DOSpacesURLRegexp)),
 	}
 
 	return req, errs.Filter()

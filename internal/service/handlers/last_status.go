@@ -34,7 +34,7 @@ func LastStatus(w http.ResponseWriter, r *http.Request) {
 
 func newFormStatusResponse(formStatus *data.FormStatus) resources.FormStatusResponse {
 	untilNextForm := time.Now().UTC().Unix() - formStatus.NextFormAt.Unix()
-	if untilNextForm < 0 {
+	if untilNextForm < 0 || formStatus.Status == data.CreatedStatus {
 		untilNextForm = 0
 	}
 

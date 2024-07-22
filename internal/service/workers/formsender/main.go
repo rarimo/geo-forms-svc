@@ -55,7 +55,7 @@ func Run(ctx context.Context, cfg config.Config) {
 			ids[i] = v.ID
 		}
 
-		if err = db.FormsQ().FilterByID(ids...).Update(data.ProcessedStatus); err != nil {
+		if err = db.FormsQ().FilterByID(ids...).UpdateStatus(data.ProcessedStatus); err != nil {
 			return fmt.Errorf("failed to update form status: %w", err)
 		}
 

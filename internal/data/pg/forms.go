@@ -18,6 +18,7 @@ const (
 type formsQ struct {
 	db       *pgdb.DB
 	selector squirrel.SelectBuilder
+	last     squirrel.SelectBuilder
 	updater  squirrel.UpdateBuilder
 }
 
@@ -25,6 +26,7 @@ func NewForms(db *pgdb.DB) data.FormsQ {
 	return &formsQ{
 		db:       db,
 		selector: squirrel.Select("*").From(formsTable),
+		last:     squirrel.Select(formsStatusFields).From(formsTable),
 		updater:  squirrel.Update(formsTable),
 	}
 }
@@ -36,7 +38,7 @@ func (q *formsQ) New() data.FormsQ {
 func (q *formsQ) Insert(form *data.Form) (*data.FormStatus, error) {
 	var res data.FormStatus
 
-	stmt := squirrel.Insert(formsTable).SetMap(map[string]interface{}{
+	values := map[string]interface{}{
 		"nullifier": form.Nullifier,
 		"status":    form.Status,
 		"name":      form.Name,
@@ -54,7 +56,13 @@ func (q *formsQ) Insert(form *data.Form) (*data.FormStatus, error) {
 		"email":     form.Email,
 		"image":     form.Image,
 		"image_url": form.ImageURL,
-	}).Suffix("RETURNING id, nullifier, status, created_at, updated_at")
+	}
+
+	if form.ID != "" {
+		values["id"] = form.ID
+	}
+
+	stmt := squirrel.Insert(formsTable).SetMap(values).Suffix("RETURNING id, nullifier, status, created_at, updated_at")
 
 	if err := q.db.Get(&res, stmt); err != nil {
 		return nil, fmt.Errorf("insert form: %w", err)
@@ -63,8 +71,16 @@ func (q *formsQ) Insert(form *data.Form) (*data.FormStatus, error) {
 	return &res, nil
 }
 
-func (q *formsQ) Update(status string) error {
+func (q *formsQ) UpdateStatus(status string) error {
 	if err := q.db.Exec(q.updater.Set("status", status)); err != nil {
+		return fmt.Errorf("update forms status: %w", err)
+	}
+
+	return nil
+}
+
+func (q *formsQ) Update(fields map[string]any) error {
+	if err := q.db.Exec(q.updater.SetMap(fields)); err != nil {
 		return fmt.Errorf("update forms: %w", err)
 	}
 
@@ -98,7 +114,7 @@ func (q *formsQ) Get(id string) (*data.FormStatus, error) {
 func (q *formsQ) Last(nullifier string) (*data.FormStatus, error) {
 	var res data.FormStatus
 
-	stmt := squirrel.Select(formsStatusFields).From(formsTable).Where(squirrel.Eq{"nullifier": nullifier}).OrderBy("created_at DESC")
+	stmt := q.last.Where(squirrel.Eq{"nullifier": nullifier}).OrderBy("created_at DESC")
 	if err := q.db.Get(&res, stmt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -122,12 +138,13 @@ func (q *formsQ) FilterByNullifier(nullifier string) data.FormsQ {
 	return q.applyCondition(squirrel.Eq{"nullifier": nullifier})
 }
 
-func (q *formsQ) FilterByStatus(status string) data.FormsQ {
+func (q *formsQ) FilterByStatus(status ...string) data.FormsQ {
 	return q.applyCondition(squirrel.Eq{"status": status})
 }
 
 func (q *formsQ) applyCondition(cond squirrel.Sqlizer) data.FormsQ {
 	q.selector = q.selector.Where(cond)
+	q.last = q.selector.Where(cond)
 	q.updater = q.updater.Where(cond)
 	return q
 }

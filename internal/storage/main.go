@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
-	spacesURL, err := parseDOSpacesURL(object)
+	spacesURL, err := ParseDOSpacesURL(object)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
@@ -37,14 +37,18 @@ func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
 	return &imageBase64, nil
 }
 
-func (s *Storage) ValidateImage(object *url.URL) error {
-	spacesURL, err := parseDOSpacesURL(object)
+func (s *Storage) ValidateImage(object *url.URL, id string) error {
+	spacesURL, err := ParseDOSpacesURL(object)
 	if err != nil {
 		return fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
 
 	if spacesURL.Bucket != s.bucket {
-		return ErrBucketNotAllowed
+		return ErrInvalidBucket
+	}
+
+	if spacesURL.Key != id {
+		return ErrInvalidKey
 	}
 
 	// output can't be nil
@@ -67,8 +71,11 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 	return nil
 }
 
-func (s *Storage) GeneratePutURL(contentType string, contentLength int64) (signedURL, key string, err error) {
+func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int64) (signedURL, key string, err error) {
 	key = uuid.New().String()
+	if fileName != "" {
+		key = fileName
+	}
 	req, _ := s.client.PutObjectRequest(&s3.PutObjectInput{
 		Bucket:        &s.bucket,
 		Key:           &key,
@@ -84,12 +91,12 @@ func (s *Storage) GeneratePutURL(contentType string, contentLength int64) (signe
 	return signedURL, key, nil
 }
 
-func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
+func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 	spacesURL := &SpacesURL{
 		URL: object,
 	}
 
-	components := doSpacesURLRegexp.FindStringSubmatch(object.String())
+	components := DOSpacesURLRegexp.FindStringSubmatch(object.String())
 	if components == nil {
 		return nil, ErrURLRegexp
 	}
@@ -106,7 +113,8 @@ func IsBadRequestError(err error) bool {
 	if errors.Is(err, ErrImageTooLarge) &&
 		errors.Is(err, ErrIncorrectImageType) &&
 		errors.Is(err, ErrURLRegexp) &&
-		errors.Is(err, ErrBucketNotAllowed) {
+		errors.Is(err, ErrInvalidBucket) &&
+		errors.Is(err, ErrInvalidKey) {
 		return true
 	}
 	return false

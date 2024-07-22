@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/rarimo/geo-auth-svc/pkg/auth"
+	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -54,7 +55,11 @@ func StatusByID(w http.ResponseWriter, r *http.Request) {
 		ape.RenderErr(w, problems.Unauthorized())
 		return
 	}
-	formStatus.NextFormAt = lastStatus.CreatedAt.Add(Forms(r).Cooldown)
+
+	formStatus.NextFormAt = lastStatus.CreatedAt
+	if lastStatus.Status != data.CreatedStatus {
+		formStatus.NextFormAt = lastStatus.CreatedAt.Add(Forms(r).Cooldown)
+	}
 
 	ape.Render(w, newFormStatusResponse(formStatus))
 }
