@@ -3,7 +3,7 @@ post:
     - User form
   summary: Generate pre-signed url
   description: |
-    Generate Pre-Signed URL for the provided content-length 
+    Generate pre-signed URL for the provided content-length 
     and content-type, with a configurable lifetime. 
     The response contains a URL with a signature and 
     other information that should be used to upload image 

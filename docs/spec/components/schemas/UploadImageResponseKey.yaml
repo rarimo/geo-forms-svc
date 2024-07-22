@@ -5,7 +5,7 @@ required:
 properties:
   id:
     type: string
-    description: UUID for check form submission status
+    description: UUID to check form submission status
   type:
     type: string
     enum: [ upload_image_response ]

@@ -67,7 +67,7 @@ func (s *Storage) ValidateImage(object *url.URL) error {
 	return nil
 }
 
-func (s *Storage) GeneratePUTURL(contentType string, contentLength int64) (signedURL, key string, err error) {
+func (s *Storage) GeneratePutURL(contentType string, contentLength int64) (signedURL, key string, err error) {
 	key = uuid.New().String()
 	req, _ := s.client.PutObjectRequest(&s3.PutObjectInput{
 		Bucket:        &s.bucket,

@@ -41,7 +41,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	signedURL, key, err := Storage(r).GeneratePUTURL(req.Data.Attributes.ContentType, req.Data.Attributes.ContentLength)
+	signedURL, key, err := Storage(r).GeneratePutURL(req.Data.Attributes.ContentType, req.Data.Attributes.ContentLength)
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to generate pre-signed url")
 		ape.RenderErr(w, problems.InternalError())
