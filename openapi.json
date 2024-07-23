@@ -18,7 +18,7 @@
           "User form"
         ],
         "summary": "Submit lightweight user answers",
-        "description": "Send user answers and return their current status.\n\nThe image is a link to s3 storage\n\nOnly a user with a confirmed passport can send the form ('verified: true' in JWT).\nThere is a configurable delay before the same user\ncan submit another form.\n",
+        "description": "Sending the filled form. Requires created empty form\nlinked to the name of the file with the photo. \nReturn form current status.\n\nThe image is a link to s3 storage    \n",
         "operationId": "lightweightSubmitForm",
         "security": [
           {
@@ -59,8 +59,8 @@
           "401": {
             "$ref": "#/components/responses/invalidAuth"
           },
-          "429": {
-            "description": "It is necessary to wait some time before sending the next form",
+          "403": {
+            "description": "Empty form absent for user, but already exists processed or accepted forms",
             "content": {
               "application/vnd.api+json": {
                 "schema": {
@@ -68,6 +68,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "500": {
             "$ref": "#/components/responses/internalError"
@@ -144,7 +147,7 @@
           "User form"
         ],
         "summary": "Generate pre-signed url",
-        "description": "Generate pre-signed URL for the provided content-length \nand content-type, with a configurable lifetime. \nThe response contains a URL with a signature and \nother information that should be used to upload image \nin S3 Storage. The name is generated on the server side.\n'verified: true' must be specified in the JWT.\nThe cooldown of this endpoint is the same as in the submit form.\n",
+        "description": "Generate pre-signed URL for the provided content-length \nand content-type, with a configurable lifetime. \nThe response contains a URL with a signature and \nother information that should be used to upload image \nin S3 Storage. The name is generated on the server side.\n'verified: true' must be specified in the JWT.\nThe cooldown of this endpoint is the same as in the submit form.\nThis endpoint creates an empty form that can be submitted on `/form`\n",
         "operationId": "uploadImage",
         "security": [
           {
@@ -491,10 +494,11 @@
                   "status": {
                     "type": "string",
                     "enum": [
+                      "created",
                       "accepted",
                       "processed"
                     ],
-                    "description": "Accepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\n"
+                    "description": "Created - the empty form was created and now user can't use legacy submit\nAccepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\n"
                   },
                   "created_at": {
                     "type": "integer",
