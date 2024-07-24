@@ -71,14 +71,6 @@ func (q *formsQ) Insert(form *data.Form) (*data.FormStatus, error) {
 	return &res, nil
 }
 
-func (q *formsQ) UpdateStatus(status string) error {
-	if err := q.db.Exec(q.updater.Set("status", status)); err != nil {
-		return fmt.Errorf("update forms status: %w", err)
-	}
-
-	return nil
-}
-
 func (q *formsQ) Update(fields map[string]any) error {
 	if err := q.db.Exec(q.updater.SetMap(fields)); err != nil {
 		return fmt.Errorf("update forms: %w", err)

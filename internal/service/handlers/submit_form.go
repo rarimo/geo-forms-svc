@@ -41,7 +41,7 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if lastForm.Status != data.CreatedStatus {
-		Log(r).Debugf("User last form don't have created status")
+		Log(r).Debugf("User last form must have %s status, got %s", data.CreatedStatus, lastForm.Status)
 		ape.RenderErr(w, problems.Forbidden())
 		return
 	}

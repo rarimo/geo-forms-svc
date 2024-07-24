@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
-	spacesURL, err := ParseDOSpacesURL(object)
+	spacesURL, err := parseDOSpacesURL(object)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
@@ -38,7 +38,7 @@ func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
 }
 
 func (s *Storage) ValidateImage(object *url.URL, id string) error {
-	spacesURL, err := ParseDOSpacesURL(object)
+	spacesURL, err := parseDOSpacesURL(object)
 	if err != nil {
 		return fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
 	}
@@ -91,7 +91,7 @@ func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int
 	return signedURL, key, nil
 }
 
-func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
+func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 	spacesURL := &SpacesURL{
 		URL: object,
 	}
@@ -110,10 +110,10 @@ func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 }
 
 func IsBadRequestError(err error) bool {
-	if errors.Is(err, ErrImageTooLarge) &&
-		errors.Is(err, ErrIncorrectImageType) &&
-		errors.Is(err, ErrURLRegexp) &&
-		errors.Is(err, ErrInvalidBucket) &&
+	if errors.Is(err, ErrImageTooLarge) ||
+		errors.Is(err, ErrIncorrectImageType) ||
+		errors.Is(err, ErrURLRegexp) ||
+		errors.Is(err, ErrInvalidBucket) ||
 		errors.Is(err, ErrInvalidKey) {
 		return true
 	}

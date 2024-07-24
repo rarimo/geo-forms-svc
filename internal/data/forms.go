@@ -64,7 +64,6 @@ type FormStatus struct {
 type FormsQ interface {
 	New() FormsQ
 	Insert(*Form) (*FormStatus, error)
-	UpdateStatus(status string) error
 
 	Update(map[string]interface{}) error
 

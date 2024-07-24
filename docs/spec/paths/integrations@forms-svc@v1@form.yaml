@@ -33,7 +33,7 @@ post:
     401:
       $ref: '#/components/responses/invalidAuth'
     403:
-      description: "Empty form absent for user, but already exists processed or accepted forms"
+      description: "Empty form absent for user, but processed or accepted one exists"
       content:
         application/vnd.api+json:
           schema:
