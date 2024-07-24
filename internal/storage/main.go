@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/url"
 
+	"github.com/aws/amazon-ssm-agent/agent/s3util"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
@@ -13,14 +14,14 @@ import (
 )
 
 func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
-	spacesURL, err := parseDOSpacesURL(object)
+	bucket, key, err := s.bucketAndKey(object)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
+		return nil, fmt.Errorf("failed to get bucket and key: %w", err)
 	}
 
 	output, err := s.client.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(spacesURL.Bucket),
-		Key:    aws.String(spacesURL.Key),
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object meta: %w", err)
@@ -38,23 +39,23 @@ func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
 }
 
 func (s *Storage) ValidateImage(object *url.URL, id string) error {
-	spacesURL, err := parseDOSpacesURL(object)
+	bucket, key, err := s.bucketAndKey(object)
 	if err != nil {
-		return fmt.Errorf("failed to parse url [%s]: %w", object.String(), err)
+		return fmt.Errorf("failed to get bucket and key: %w", err)
 	}
 
-	if spacesURL.Bucket != s.bucket {
+	if bucket != s.bucket {
 		return ErrInvalidBucket
 	}
 
-	if spacesURL.Key != id {
+	if key != id {
 		return ErrInvalidKey
 	}
 
 	// output can't be nil
 	output, err := s.client.HeadObject(&s3.HeadObjectInput{
-		Bucket: aws.String(spacesURL.Bucket),
-		Key:    aws.String(spacesURL.Key),
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to get image meta: %w", err)
@@ -69,6 +70,26 @@ func (s *Storage) ValidateImage(object *url.URL, id string) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) bucketAndKey(link *url.URL) (bucket, key string, err error) {
+	switch s.backend {
+	case digitalOceanBackend:
+		spacesURL, err := parseDOSpacesURL(link)
+		if err != nil {
+			return "", "", fmt.Errorf("failed to parse url [%s]: %w", link, err)
+		}
+		return spacesURL.Bucket, spacesURL.Key, nil
+	case awsBackend:
+		s3URL := s3util.ParseAmazonS3URL(nil, link)
+		if s3URL.Region != s.region {
+			return "", "", ErrRegionMismatched
+		}
+		return s3URL.Bucket, s3URL.Key, nil
+		// should be never happened
+	default:
+		return "", "", errors.New("invalid backend")
+	}
 }
 
 func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int64) (signedURL, key string, err error) {
@@ -96,7 +117,7 @@ func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 		URL: object,
 	}
 
-	components := DOSpacesURLRegexp.FindStringSubmatch(object.String())
+	components := doSpacesURLRegexp.FindStringSubmatch(object.String())
 	if components == nil {
 		return nil, ErrURLRegexp
 	}

@@ -17,6 +17,7 @@ forms:
   url: forms:forms@tcp(127.0.0.1:5441)/forms
 
 storage:
+  backend: "do"
   endpoint: https://fra1.digitaloceanspaces.com
   bucket: bucket
   presigned_url_expiration: 3m

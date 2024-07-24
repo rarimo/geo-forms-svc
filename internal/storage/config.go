@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -29,13 +30,13 @@ type storager struct {
 	getter kv.Getter
 }
 
-// Storage works only with DigitalOceanSpaces.
+// Storage support DigitalOceanSpaces and AWS S3
 // Other providers are not supported.
 func (c *storager) Storage() *Storage {
 	return c.once.Do(func() interface{} {
 		var envCfg struct {
-			SpacesKey    string `dig:"SPACES_KEY,clear"`
-			SpacesSecret string `dig:"SPACES_SECRET,clear"`
+			S3Key    string `dig:"S3_KEY,clear"`
+			S3Secret string `dig:"S3_SECRET,clear"`
 		}
 
 		err := dig.Out(&envCfg).Now()
@@ -44,9 +45,11 @@ func (c *storager) Storage() *Storage {
 		}
 
 		var cfg struct {
+			Backend                string         `fig:"backend,required"`
 			Endpoint               string         `fig:"endpoint,required"`
 			Bucket                 string         `fig:"bucket,required"`
 			PresignedURLExpiration *time.Duration `fig:"presigned_url_expiration"`
+			Region                 *string        `fig:"region"`
 		}
 
 		err = figure.Out(&cfg).
@@ -56,14 +59,24 @@ func (c *storager) Storage() *Storage {
 			panic(fmt.Errorf("failed to figure out s3 storage config: %w", err))
 		}
 
+		switch cfg.Backend {
+		case digitalOceanBackend, awsBackend:
+		default:
+			panic(errors.New("invalid backend provided"))
+		}
+
 		if cfg.PresignedURLExpiration == nil {
 			cfg.PresignedURLExpiration = &defaultPresignedURLExpiration
 		}
 
+		if cfg.Region == nil {
+			cfg.Region = aws.String(defaultRegion)
+		}
+
 		s3Config := &aws.Config{
-			Credentials:      credentials.NewStaticCredentials(envCfg.SpacesKey, envCfg.SpacesSecret, ""),
+			Credentials:      credentials.NewStaticCredentials(envCfg.S3Key, envCfg.S3Secret, ""),
 			Endpoint:         aws.String(cfg.Endpoint),
-			Region:           aws.String("us-east-1"),
+			Region:           cfg.Region,
 			S3ForcePathStyle: aws.Bool(false),
 		}
 
@@ -78,6 +91,8 @@ func (c *storager) Storage() *Storage {
 			client:                 s3Client,
 			bucket:                 cfg.Bucket,
 			presignedURLExpiration: *cfg.PresignedURLExpiration,
+			backend:                cfg.Backend,
+			region:                 *cfg.Region,
 		}
 	}).(*Storage)
 }
