@@ -14,8 +14,9 @@ allOf:
         properties:
           status:
             type: string
-            enum: [ accepted, processed ]
+            enum: [ created, accepted, processed ]
             description: |
+              Created - the empty form was created and now user can't use legacy submit
               Accepted - the data was saved by the service for further processing
               Processed - the data is processed and stored
           created_at:

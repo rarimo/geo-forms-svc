@@ -6,8 +6,27 @@ import (
 )
 
 const (
+	CreatedStatus   = "created"
 	AcceptedStatus  = "accepted"
 	ProcessedStatus = "processed"
+)
+
+const (
+	ColStatus   = "status"
+	ColName     = "name"
+	ColSurname  = "surname"
+	ColIDNum    = "id_num"
+	ColBirthday = "birthday"
+	ColCitizen  = "citizen"
+	ColVisited  = "visited"
+	ColPurpose  = "purpose"
+	ColCountry  = "country"
+	ColCity     = "city"
+	ColAddress  = "address"
+	ColPostal   = "postal"
+	ColPhone    = "phone"
+	ColEmail    = "email"
+	ColImageURL = "image_url"
 )
 
 type Form struct {
@@ -45,7 +64,8 @@ type FormStatus struct {
 type FormsQ interface {
 	New() FormsQ
 	Insert(*Form) (*FormStatus, error)
-	Update(status string) error
+
+	Update(map[string]interface{}) error
 
 	Select() ([]*Form, error)
 	Limit(uint64) FormsQ
@@ -54,5 +74,5 @@ type FormsQ interface {
 	Last(nullifier string) (*FormStatus, error)
 
 	FilterByID(ids ...string) FormsQ
-	FilterByStatus(status string) FormsQ
+	FilterByStatus(status ...string) FormsQ
 }

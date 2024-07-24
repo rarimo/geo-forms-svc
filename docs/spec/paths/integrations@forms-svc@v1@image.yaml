@@ -10,6 +10,7 @@ post:
     in S3 Storage. The name is generated on the server side.
     'verified: true' must be specified in the JWT.
     The cooldown of this endpoint is the same as in the submit form.
+    This endpoint creates an empty form that can be submitted on `/form`
   operationId: uploadImage
   security:
     - BearerAuth: []

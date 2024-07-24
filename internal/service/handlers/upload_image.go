@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/rarimo/geo-auth-svc/pkg/auth"
+	"github.com/rarimo/geo-forms-svc/internal/data"
 	"github.com/rarimo/geo-forms-svc/internal/service/requests"
 	"github.com/rarimo/geo-forms-svc/resources"
 	"gitlab.com/distributed_lab/ape"
@@ -32,31 +34,75 @@ func UploadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if lastForm != nil {
-		next := lastForm.CreatedAt.Add(Forms(r).Cooldown)
-		if next.After(time.Now().UTC()) {
-			Log(r).Debugf("Form submitted time: %s; next available time: %s", lastForm.CreatedAt, next)
-			ape.RenderErr(w, problems.TooManyRequests())
+	if lastForm == nil {
+		signedURL, id, err := newCreatedFormWithURL(r, nullifier, req.Data.Attributes.ContentType, req.Data.Attributes.ContentLength)
+		if err != nil {
+			Log(r).WithError(err).Error("Failed to create form")
+			ape.RenderErr(w, problems.InternalError())
 			return
 		}
+
+		ape.Render(w, newUploadImageResponse(id, signedURL))
+		return
 	}
 
-	signedURL, key, err := Storage(r).GeneratePutURL(req.Data.Attributes.ContentType, req.Data.Attributes.ContentLength)
+	if lastForm.Status == data.CreatedStatus {
+		signedURL, id, err := Storage(r).GeneratePutURL(lastForm.ID, req.Data.Attributes.ContentType, req.Data.Attributes.ContentLength)
+		if err != nil {
+			Log(r).WithError(err).Error("Failed to generate pre-signed url")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+
+		ape.Render(w, newUploadImageResponse(id, signedURL))
+		return
+	}
+
+	next := lastForm.CreatedAt.Add(Forms(r).Cooldown)
+	if next.After(time.Now().UTC()) {
+		Log(r).Debugf("Form submitted time: %s; next available time: %s", lastForm.CreatedAt, next)
+		ape.RenderErr(w, problems.TooManyRequests())
+		return
+	}
+
+	signedURL, id, err := newCreatedFormWithURL(r, nullifier, req.Data.Attributes.ContentType, req.Data.Attributes.ContentLength)
 	if err != nil {
-		Log(r).WithError(err).Error("Failed to generate pre-signed url")
+		Log(r).WithError(err).Error("Failed to create form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	ape.Render(w, resources.UploadImageResponseResponse{
+	ape.Render(w, newUploadImageResponse(id, signedURL))
+}
+
+func newUploadImageResponse(id, signedURL string) resources.UploadImageResponseResponse {
+	return resources.UploadImageResponseResponse{
 		Data: resources.UploadImageResponse{
 			Key: resources.Key{
-				ID:   key,
+				ID:   id,
 				Type: resources.UPLOAD_IMAGE_RESPONSE,
 			},
 			Attributes: resources.UploadImageResponseAttributes{
 				Url: signedURL,
 			},
 		},
+	}
+}
+
+func newCreatedFormWithURL(r *http.Request, nullifier, contentType string, contentLength int64) (string, string, error) {
+	signedURL, id, err := Storage(r).GeneratePutURL("", contentType, contentLength)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to generate pre-signed url: %w", err)
+	}
+
+	_, err = FormsQ(r).Insert(&data.Form{
+		ID:        id,
+		Status:    data.CreatedStatus,
+		Nullifier: nullifier,
 	})
+	if err != nil {
+		return "", "", fmt.Errorf("failed to insert created form: %w", err)
+	}
+
+	return signedURL, id, nil
 }
