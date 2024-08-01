@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"time"
 
 	"github.com/aws/amazon-ssm-agent/agent/s3util"
 	"github.com/aws/aws-sdk-go/aws"
@@ -110,6 +111,41 @@ func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int
 	}
 
 	return signedURL, key, nil
+}
+
+func (s *Storage) GenerateGetURL(link *url.URL) (signedURL string, err error) {
+	var bucket, key string
+
+	switch s.backend {
+	case digitalOceanBackend:
+		spacesURL, err := parseDOSpacesURL(link)
+		if err != nil {
+			return "", fmt.Errorf("failed to parse url [%s]: %w", link, err)
+		}
+		key = spacesURL.Key
+		bucket = spacesURL.Bucket
+	case awsBackend:
+		s3URL := s3util.ParseAmazonS3URL(nil, link)
+		if s3URL.Region != s.region {
+			return "", ErrRegionMismatched
+		}
+		key = s3URL.Key
+		bucket = s3URL.Bucket
+		// should be never happened
+	default:
+		return "", errors.New("invalid backend")
+	}
+	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: &bucket,
+		Key:    &key,
+	})
+
+	signedURL, err = req.Presign(time.Hour * 164)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	return signedURL, nil
 }
 
 func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {

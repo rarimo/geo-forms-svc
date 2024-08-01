@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/rarimo/geo-forms-svc/internal/data"
@@ -132,6 +133,14 @@ func (q *formsQ) FilterByNullifier(nullifier string) data.FormsQ {
 
 func (q *formsQ) FilterByStatus(status ...string) data.FormsQ {
 	return q.applyCondition(squirrel.Eq{"status": status})
+}
+
+func (q *formsQ) FilterByUpdatedAt(times time.Time) data.FormsQ {
+	return q.applyCondition(squirrel.Gt{"updated_at": times})
+}
+
+func (q *formsQ) FilterImages() data.FormsQ {
+	return q.applyCondition(squirrel.Eq{"image": nil})
 }
 
 func (q *formsQ) applyCondition(cond squirrel.Sqlizer) data.FormsQ {

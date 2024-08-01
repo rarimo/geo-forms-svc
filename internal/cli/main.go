@@ -10,7 +10,7 @@ import (
 	"github.com/alecthomas/kingpin"
 	"github.com/rarimo/geo-forms-svc/internal/config"
 	"github.com/rarimo/geo-forms-svc/internal/service"
-	"github.com/rarimo/geo-forms-svc/internal/service/workers/formsender"
+	"github.com/rarimo/geo-forms-svc/internal/service/workers/spreadsheets"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
 )
@@ -59,7 +59,12 @@ func Run(args []string) bool {
 	switch cmd {
 	case serviceCmd.FullCommand():
 		run(service.Run)
-		run(formsender.Run)
+
+		wg.Add(1)
+		go func() {
+			spreadsheets.Run(ctx, cfg)
+			wg.Done()
+		}()
 	case migrateUpCmd.FullCommand():
 		err = MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():

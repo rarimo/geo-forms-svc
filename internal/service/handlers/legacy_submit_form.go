@@ -45,7 +45,7 @@ func LegacySubmitForm(w http.ResponseWriter, r *http.Request) {
 	userData := req.Data.Attributes
 	form := &data.Form{
 		Nullifier: nullifier,
-		Status:    data.ProcessedStatus,
+		Status:    data.AcceptedStatus,
 		Name:      userData.Name,
 		Surname:   userData.Surname,
 		IDNum:     userData.IdNum,
@@ -60,11 +60,6 @@ func LegacySubmitForm(w http.ResponseWriter, r *http.Request) {
 		Phone:     userData.Phone,
 		Email:     userData.Email,
 		Image:     &userData.Image,
-	}
-
-	if err = Forms(r).SendForms(form); err != nil {
-		Log(r).WithError(err).Error("Failed to send form")
-		form.Status = data.AcceptedStatus
 	}
 
 	_, err = FormsQ(r).Insert(form)

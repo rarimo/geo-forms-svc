@@ -75,4 +75,6 @@ type FormsQ interface {
 
 	FilterByID(ids ...string) FormsQ
 	FilterByStatus(status ...string) FormsQ
+	FilterByUpdatedAt(time.Time) FormsQ
+	FilterImages() FormsQ
 }

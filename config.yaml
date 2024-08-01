@@ -18,9 +18,16 @@ forms:
 
 storage:
   backend: "do"
-  endpoint: https://fra1.digitaloceanspaces.com
+  endpoint: https://nyc3.digitaloceanspaces.com
   bucket: bucket
   presigned_url_expiration: 3m
+
+spreadsheets:
+  credentials: "./credentials.json"
+  token: "./token.json"
+  period: 1m
+  min_abnormal_period: 1m
+  max_abnormal_period: 10m
 
 auth:
   addr: http://127.0.0.1:5000
