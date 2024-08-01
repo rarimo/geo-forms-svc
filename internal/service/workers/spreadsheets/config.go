@@ -99,7 +99,7 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 		}
 
 		var token oauth2.Token
-		err = json.Unmarshal([]byte(tokenS), &token)
+		err = json.Unmarshal(tokenS, &token)
 		if err != nil {
 			panic(fmt.Errorf("failed to unmarshal token: %w", err))
 		}
