@@ -27,7 +27,7 @@ func UploadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lastForm, err := FormsQ(r).Last(nullifier)
+	lastForm, err := FormsQ(r).FilterByNullifier(nullifier).Last()
 	if err != nil {
 		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
@@ -95,7 +95,7 @@ func newCreatedFormWithURL(r *http.Request, nullifier, contentType string, conte
 		return "", "", fmt.Errorf("failed to generate pre-signed url: %w", err)
 	}
 
-	_, err = FormsQ(r).Insert(&data.Form{
+	err = FormsQ(r).Insert(data.Form{
 		ID:        id,
 		Status:    data.CreatedStatus,
 		Nullifier: nullifier,

@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
-	"io"
+	"net/http"
 	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/aws/amazon-ssm-agent/agent/s3util"
@@ -13,31 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
-
-func (s *Storage) GetImageBase64(object *url.URL) (*string, error) {
-	bucket, key, err := s.bucketAndKey(object)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get bucket and key: %w", err)
-	}
-
-	output, err := s.client.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to get object meta: %w", err)
-	}
-	defer output.Body.Close()
-
-	imageBytes, err := io.ReadAll(output.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read image: %w", err)
-	}
-
-	imageBase64 := base64.StdEncoding.EncodeToString(imageBytes)
-
-	return &imageBase64, nil
-}
 
 func (s *Storage) ValidateImage(object *url.URL, id string) error {
 	bucket, key, err := s.bucketAndKey(object)
@@ -76,7 +53,7 @@ func (s *Storage) ValidateImage(object *url.URL, id string) error {
 func (s *Storage) bucketAndKey(link *url.URL) (bucket, key string, err error) {
 	switch s.backend {
 	case digitalOceanBackend:
-		spacesURL, err := parseDOSpacesURL(link)
+		spacesURL, err := ParseDOSpacesURL(link)
 		if err != nil {
 			return "", "", fmt.Errorf("failed to parse url [%s]: %w", link, err)
 		}
@@ -91,6 +68,48 @@ func (s *Storage) bucketAndKey(link *url.URL) (bucket, key string, err error) {
 	default:
 		return "", "", errors.New("invalid backend")
 	}
+}
+
+func (s *Storage) UploadB64Image(imageB64 *string) (key string, err error) {
+	imageBytes, err := base64.StdEncoding.DecodeString(*imageB64)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode image: %w", err)
+	}
+
+	contentType := http.DetectContentType(imageBytes)
+	if contentType != "image/jpeg" && contentType != "image/png" {
+		return "", fmt.Errorf("incorrect file type")
+	}
+
+	key = uuid.New().String()
+	_, err = s.client.PutObject(&s3.PutObjectInput{
+		Bucket:             &s.bucket,
+		Key:                &key,
+		Body:               bytes.NewReader(imageBytes),
+		ContentDisposition: aws.String("attachment"),
+		ContentType:        aws.String(http.DetectContentType(imageBytes)),
+		ContentLength:      aws.Int64(int64(len(imageBytes))),
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to put image in s3: %w", err)
+	}
+
+	return key, nil
+}
+
+func (s *Storage) GetURL(key string) string {
+	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: &s.bucket,
+		Key:    &key,
+	})
+
+	// will never error
+	signedReq, _ := req.Presign(time.Minute)
+	components := regexp.MustCompile(`(.+?)\?`).FindStringSubmatch(signedReq)
+	if components == nil {
+		return ""
+	}
+	return components[1]
 }
 
 func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int64) (signedURL, key string, err error) {
@@ -118,7 +137,7 @@ func (s *Storage) GenerateGetURL(link *url.URL) (signedURL string, err error) {
 
 	switch s.backend {
 	case digitalOceanBackend:
-		spacesURL, err := parseDOSpacesURL(link)
+		spacesURL, err := ParseDOSpacesURL(link)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse url [%s]: %w", link, err)
 		}
@@ -148,7 +167,7 @@ func (s *Storage) GenerateGetURL(link *url.URL) (signedURL string, err error) {
 	return signedURL, nil
 }
 
-func parseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
+func ParseDOSpacesURL(object *url.URL) (*SpacesURL, error) {
 	spacesURL := &SpacesURL{
 		URL: object,
 	}

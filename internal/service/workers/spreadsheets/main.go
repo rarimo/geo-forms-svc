@@ -31,7 +31,7 @@ func Run(ctx context.Context, cfg extConfig) {
 	spreadsheets := cfg.Spreadsheets()
 
 	running.WithBackOff(ctx, log, "sheet-former", func(context.Context) error {
-		forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).FilterImages().FilterByUpdatedAt(spreadsheets.lastSubmited).Select()
+		forms, err := db.FormsQ().FilterByStatus(data.AcceptedStatus).Select()
 		if err != nil {
 			return fmt.Errorf("failed to get unsended forms: %w", err)
 		}
@@ -43,9 +43,9 @@ func Run(ctx context.Context, cfg extConfig) {
 		for _, form := range forms {
 			data := make([]any, 0, len(headers))
 
-			link, err := url.Parse(form.ImageURL.String)
+			link, err := url.Parse(form.Image)
 			if err != nil {
-				return fmt.Errorf("failed to parse image url %s: %w", form.ImageURL.String, err)
+				return fmt.Errorf("failed to parse image url %s: %w", form.Image, err)
 			}
 
 			signedURL, err := s3.GenerateGetURL(link)

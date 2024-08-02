@@ -24,13 +24,15 @@ func Run(ctx context.Context, cfg config.Config) {
 		),
 	)
 	r.Route("/integrations/geo-forms-svc/v1", func(r chi.Router) {
-		r.Use(handlers.AuthMiddleware(cfg.Auth(), cfg.Log()))
-		r.Post("/image", handlers.UploadImage)
+		r.Get("/image/{id}", nil)
+		r.With(handlers.AuthMiddleware(cfg.Auth(), cfg.Log())).Post("/image", handlers.UploadImage)
 		r.Route("/status", func(r chi.Router) {
+			r.Use(handlers.AuthMiddleware(cfg.Auth(), cfg.Log()))
 			r.Get("/{id}", handlers.StatusByID)
 			r.Get("/last", handlers.LastStatus)
 		})
 		r.Route("/form", func(r chi.Router) {
+			r.Use(handlers.AuthMiddleware(cfg.Auth(), cfg.Log()))
 			r.Post("/submit", handlers.LegacySubmitForm)
 			r.Post("/", handlers.SubmitForm)
 		})
