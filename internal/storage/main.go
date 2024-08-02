@@ -66,7 +66,7 @@ func (s *Storage) bucketAndKey(link *url.URL) (bucket, key string, err error) {
 		return s3URL.Bucket, s3URL.Key, nil
 		// should be never happened
 	default:
-		return "", "", errors.New("invalid backend")
+		return "", "", fmt.Errorf("unknown backend: %s", s.backend)
 	}
 }
 
@@ -133,27 +133,11 @@ func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int
 }
 
 func (s *Storage) GenerateGetURL(link *url.URL) (signedURL string, err error) {
-	var bucket, key string
-
-	switch s.backend {
-	case digitalOceanBackend:
-		spacesURL, err := ParseDOSpacesURL(link)
-		if err != nil {
-			return "", fmt.Errorf("failed to parse url [%s]: %w", link, err)
-		}
-		key = spacesURL.Key
-		bucket = spacesURL.Bucket
-	case awsBackend:
-		s3URL := s3util.ParseAmazonS3URL(nil, link)
-		if s3URL.Region != s.region {
-			return "", ErrRegionMismatched
-		}
-		key = s3URL.Key
-		bucket = s3URL.Bucket
-		// should be never happened
-	default:
-		return "", errors.New("invalid backend")
+	bucket, key, err := s.bucketAndKey(link)
+	if err != nil {
+		return "", fmt.Errorf("failed to get bucket and key: %w", err)
 	}
+
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: &bucket,
 		Key:    &key,
