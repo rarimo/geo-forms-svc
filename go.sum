@@ -1389,7 +1389,6 @@ github.com/fjl/memsize v0.0.0-20190710130421-bcb5799ab5e5/go.mod h1:VvhXpOYNQvB+
 github.com/flosch/pongo2/v4 v4.0.2/go.mod h1:B5ObFANs/36VwxxlgKpdchIJHMvHB562PW+BWPhwZD8=
 github.com/fogleman/gg v1.2.1-0.20190220221249-0403632d5b90/go.mod h1:R/bRT+9gY/C5z7JzPU0zXsXHKM4/ayA+zqcVNZzPa1k=
 github.com/fogleman/gg v1.3.0/go.mod h1:R/bRT+9gY/C5z7JzPU0zXsXHKM4/ayA+zqcVNZzPa1k=
-github.com/frankban/quicktest v1.14.3/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
@@ -2051,7 +2050,6 @@ github.com/spf13/afero v1.9.2/go.mod h1:iUV7ddyEEZPO5gA3zD4fJt6iStLlL+Lg4m2cihcD
 github.com/spf13/afero v1.11.0 h1:WJQKhtpdm3v2IzqG8VMqrr6Rf3UYpEF239Jy9wNepM8=
 github.com/spf13/afero v1.11.0/go.mod h1:GH9Y3pIexgf1MTIWtNGyogA5MwRIDXGUr+hbWNoBjkY=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
-github.com/spf13/cast v1.5.0/go.mod h1:SpXXQ5YoyJw6s3/6cMTQuxvgRl3PCJiyaX9p6b155UU=
 github.com/spf13/cast v1.6.0 h1:GEiTHELF+vaR5dhz3VqZfFSzZjYbgeKDpBxQVS4GYJ0=
 github.com/spf13/cast v1.6.0/go.mod h1:ancEpBxwJDODSW/UG4rDrAqiKolqNNh2DX3mk86cAdo=
 github.com/spf13/cobra v0.0.3/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3XqQ=
@@ -2157,7 +2155,6 @@ github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5t
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
 github.com/zeebo/assert v1.3.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN/wJ0=
 github.com/zeebo/xxh3 v1.0.2/go.mod h1:5NWz9Sef7zIDm2JHfFlcQvNekmcEl9ekUZQQKCYaDcA=
-gitlab.com/distributed_lab/ape v1.6.1/go.mod h1:Qy9Y2arL0hmZIpVpctGEFhdrVsjWtyVJ5G+bZWcFT4s=
 gitlab.com/distributed_lab/ape v1.7.1 h1:LpTmZgG7Lvx6ulopQbH2aWI3s8ey9FsKVjbic3ZQIy4=
 gitlab.com/distributed_lab/ape v1.7.1/go.mod h1:Qy9Y2arL0hmZIpVpctGEFhdrVsjWtyVJ5G+bZWcFT4s=
 gitlab.com/distributed_lab/dig v0.0.0-20230207152643-c44f80a4294c h1:cqPwdAw7oJpNeN0F80bg5vNI5t3oJoSCPSnC6oj+Zyw=
@@ -2170,15 +2167,12 @@ gitlab.com/distributed_lab/kit v1.11.3 h1:ADy0NtksgXPYz56hlEG9L9eImzjAbyh34fm8fb
 gitlab.com/distributed_lab/kit v1.11.3/go.mod h1:PEbGoeTgSlIxmYFFD2dXlythl+gVYO7BXxvTBqVyLlM=
 gitlab.com/distributed_lab/logan v3.4.1+incompatible/go.mod h1:25oL/FPFXmyYzWeA6vahMvnFJV8P7mOx0jZhRP7nhlc=
 gitlab.com/distributed_lab/logan v3.7.2+incompatible/go.mod h1:25oL/FPFXmyYzWeA6vahMvnFJV8P7mOx0jZhRP7nhlc=
-gitlab.com/distributed_lab/logan v3.8.0+incompatible/go.mod h1:25oL/FPFXmyYzWeA6vahMvnFJV8P7mOx0jZhRP7nhlc=
 gitlab.com/distributed_lab/logan v3.8.1+incompatible h1:bYiP3P0AA0cpAL/fyOYWGq1aiKw16vZFoJz+nwbqdvU=
 gitlab.com/distributed_lab/logan v3.8.1+incompatible/go.mod h1:25oL/FPFXmyYzWeA6vahMvnFJV8P7mOx0jZhRP7nhlc=
 gitlab.com/distributed_lab/lorem v0.2.0 h1:Rc7Ef3eGSpei8EtWcV6fzPW3O/QEF2zgZR4+hV8WJAw=
 gitlab.com/distributed_lab/lorem v0.2.0/go.mod h1:wkzrGoB1L/yUBu56SfoJ/vNiPqiHZcg75AnBkWNcjhQ=
 gitlab.com/distributed_lab/running v1.6.0 h1:O2GQHgYkpNRDbobR11atOCH2rhS1okNKyadiAqi+kQI=
 gitlab.com/distributed_lab/running v1.6.0/go.mod h1:4TnADX84dQjQMRHKIMPCVL0L97rD/Jxv0xDbrN6aKzk=
-gitlab.com/distributed_lab/urlval/v4 v4.0.3 h1:ZgdSBcvaoHBYmgze/u0bYfvq5Xx47pGTdfFmMYxn27s=
-gitlab.com/distributed_lab/urlval/v4 v4.0.3/go.mod h1:IdRM8gOyzpXNoAkIKWVwN+dChh6+1TioS/SVhTGvRFA=
 go.etcd.io/bbolt v1.3.7/go.mod h1:N9Mkw9X8x5fupy0IKsmuqVtoGDyxsaDlbk4Rd05IAQw=
 go.etcd.io/etcd/api/v3 v3.5.10/go.mod h1:TidfmT4Uycad3NM/o25fG3J07odo4GBB9hoxaodFCtI=
 go.etcd.io/etcd/client/pkg/v3 v3.5.10/go.mod h1:DYivfIviIuQ8+/lCq4vcxuseg2P2XbHygkKwFo9fc8U=
