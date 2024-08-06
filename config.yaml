@@ -19,7 +19,7 @@ storage:
 
 spreadsheets:
   credentials: "./credentials.json"
-  token: "./token.json"
+  folder: ""
   period: 1m
   min_abnormal_period: 1m
   max_abnormal_period: 10m

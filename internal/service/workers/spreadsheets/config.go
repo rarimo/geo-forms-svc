@@ -2,7 +2,6 @@ package spreadsheets
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 	"gitlab.com/distributed_lab/figure"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
@@ -44,6 +42,7 @@ type Spreadsheets struct {
 	minAbnormalPeriod time.Duration
 	maxAbnormalPeriod time.Duration
 
+	folder       string
 	sheetID      string
 	lastSubmited time.Time
 
@@ -70,7 +69,7 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 	return c.once.Do(func() interface{} {
 		var cfg struct {
 			Credentials       string        `fig:"credentials,required"`
-			Token             string        `fig:"token,required"`
+			Folder            string        `fig:"folder,required"`
 			Period            time.Duration `fig:"period,required"`
 			MinAbnormalPeriod time.Duration `fig:"min_abnormal_period,required"`
 			MaxAbnormalPeriod time.Duration `fig:"max_abnormal_period,required"`
@@ -88,23 +87,12 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 			panic(fmt.Errorf("unable to read client secret file: %w", err))
 		}
 
-		config, err := google.ConfigFromJSON(creds, scopes...)
+		config, err := google.JWTConfigFromJSON(creds, scopes...)
 		if err != nil {
 			log.Fatalf("Unable to parse client secret file to config: %v", err)
 		}
 
-		tokenS, err := os.ReadFile(cfg.Token)
-		if err != nil {
-			panic(fmt.Errorf("unable to read client secret file: %w", err))
-		}
-
-		var token oauth2.Token
-		err = json.Unmarshal(tokenS, &token)
-		if err != nil {
-			panic(fmt.Errorf("failed to unmarshal token: %w", err))
-		}
-
-		client := config.Client(context.Background(), &token)
+		client := config.Client(context.Background())
 
 		sheetsSrv, err := sheets.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
@@ -122,6 +110,8 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 			minAbnormalPeriod: cfg.MinAbnormalPeriod,
 			maxAbnormalPeriod: cfg.MaxAbnormalPeriod,
 
+			folder: cfg.Folder,
+
 			sheetsSrv: sheetsSrv,
 			driveSrv:  driveSrv,
 		}
@@ -132,6 +122,7 @@ func (s *Spreadsheets) CreateTable() error {
 	sheet, err := s.driveSrv.Files.Create(&drive.File{
 		Name:     time.Now().UTC().Format("01/02/2006 15:04"),
 		MimeType: mimeTypeSpreadsheet,
+		Parents:  []string{s.folder},
 	}).Do()
 	if err != nil {
 		return fmt.Errorf("failed to create spreadsheet: %w", err)
