@@ -17,8 +17,8 @@
         "tags": [
           "User form"
         ],
-        "summary": "Submit lightweight user answers",
-        "description": "Sending the filled form. Requires created empty form\nlinked to the name of the file with the photo. \nReturn form current status.\n\nThe image is a link to s3 storage    \n",
+        "summary": "Submit user answers",
+        "description": "Sending the filled form. Requires created empty form\nlinked to the name of the file with the photo. \n\nThe image is a link to s3 storage    \n",
         "operationId": "lightweightSubmitForm",
         "security": [
           {
@@ -48,7 +48,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FormStatus"
+                  "$ref": "#/components/schemas/Form"
                 }
               }
             }
@@ -124,6 +124,16 @@
           },
           "401": {
             "$ref": "#/components/responses/invalidAuth"
+          },
+          "403": {
+            "description": "Empty form exist for user, but user go to legacy endpoint",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
           },
           "429": {
             "description": "It is necessary to wait some time before sending the next form",
@@ -281,7 +291,7 @@
                   ],
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/FormStatus"
+                      "$ref": "#/components/schemas/Form"
                     }
                   }
                 }
@@ -384,10 +394,11 @@
                   "status": {
                     "type": "string",
                     "enum": [
+                      "created",
                       "accepted",
                       "processed"
                     ],
-                    "description": "Accepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\nRead-only.\n"
+                    "description": "Created - the empty form was created and now user can't use legacy submit\nAccepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\nRead-only.\n"
                   },
                   "name": {
                     "type": "string",
@@ -445,6 +456,30 @@
                     "type": "string",
                     "description": "base64 encoded image with max size 4 MB or\nURL for S3 storage with image up to 4 mb\n",
                     "example": "https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1721392530,
+                    "description": "Form submission time. Unix time.\nRead-only.\n"
+                  },
+                  "processed_at": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1721392530,
+                    "description": "Form processing time. Absent if the status is accepted. Unix time.\nRead-only.\n"
+                  },
+                  "next_form_at": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1721392530,
+                    "description": "Time of the next possible form submission. Unix time.\nRead-only.\n"
+                  },
+                  "until_next_form": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 120,
+                    "description": "Time until the next form submission in seconds.\nRead-only.\n"
                   }
                 }
               }
@@ -467,79 +502,6 @@
             "enum": [
               "form",
               "submit_form"
-            ]
-          }
-        }
-      },
-      "FormStatus": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/FormStatusKey"
-          },
-          {
-            "type": "object",
-            "required": [
-              "attributes"
-            ],
-            "properties": {
-              "attributes": {
-                "type": "object",
-                "required": [
-                  "status",
-                  "created_at",
-                  "next_form_at",
-                  "until_next_form"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "created",
-                      "accepted",
-                      "processed"
-                    ],
-                    "description": "Created - the empty form was created and now user can't use legacy submit\nAccepted - the data was saved by the service for further processing\nProcessed - the data is processed and stored\n"
-                  },
-                  "created_at": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 1721392530,
-                    "description": "Form submission time. Unix time."
-                  },
-                  "processed_at": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 1721392530,
-                    "description": "Form processing time. Absent if the status is accepted. Unix time."
-                  },
-                  "next_form_at": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 1721392530,
-                    "description": "Time of the next possible form submission. Unix time."
-                  },
-                  "until_next_form": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 120,
-                    "description": "Time until the next form submission in seconds."
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
-      "FormStatusKey": {
-        "type": "object",
-        "required": [
-          "type"
-        ],
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "form_status"
             ]
           }
         }

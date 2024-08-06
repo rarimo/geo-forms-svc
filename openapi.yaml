@@ -11,11 +11,10 @@ paths:
     post:
       tags:
         - User form
-      summary: Submit lightweight user answers
+      summary: Submit user answers
       description: |
         Sending the filled form. Requires created empty form
         linked to the name of the file with the photo. 
-        Return form current status.
 
         The image is a link to s3 storage    
       operationId: lightweightSubmitForm
@@ -37,7 +36,7 @@ paths:
           content:
             application/vnd.api+json:
               schema:
-                $ref: '#/components/schemas/FormStatus'
+                $ref: '#/components/schemas/Form'
         '400':
           $ref: '#/components/responses/invalidParameter'
         '401':
@@ -89,6 +88,12 @@ paths:
           $ref: '#/components/responses/invalidParameter'
         '401':
           $ref: '#/components/responses/invalidAuth'
+        '403':
+          description: 'Empty form exist for user, but user go to legacy endpoint'
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '429':
           description: It is necessary to wait some time before sending the next form
           content:
@@ -196,7 +201,7 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: '#/components/schemas/FormStatus'
+                    $ref: '#/components/schemas/Form'
         '400':
           $ref: '#/components/responses/invalidParameter'
         '401':
@@ -269,9 +274,11 @@ components:
                 status:
                   type: string
                   enum:
+                    - created
                     - accepted
                     - processed
                   description: |
+                    Created - the empty form was created and now user can't use legacy submit
                     Accepted - the data was saved by the service for further processing
                     Processed - the data is processed and stored
                     Read-only.
@@ -320,6 +327,34 @@ components:
                     base64 encoded image with max size 4 MB or
                     URL for S3 storage with image up to 4 mb
                   example: 'https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg'
+                created_at:
+                  type: integer
+                  format: int64
+                  example: 1721392530
+                  description: |
+                    Form submission time. Unix time.
+                    Read-only.
+                processed_at:
+                  type: integer
+                  format: int64
+                  example: 1721392530
+                  description: |
+                    Form processing time. Absent if the status is accepted. Unix time.
+                    Read-only.
+                next_form_at:
+                  type: integer
+                  format: int64
+                  example: 1721392530
+                  description: |
+                    Time of the next possible form submission. Unix time.
+                    Read-only.
+                until_next_form:
+                  type: integer
+                  format: int64
+                  example: 120
+                  description: |
+                    Time until the next form submission in seconds.
+                    Read-only.
     FormKey:
       type: object
       required:
@@ -333,60 +368,6 @@ components:
           enum:
             - form
             - submit_form
-    FormStatus:
-      allOf:
-        - $ref: '#/components/schemas/FormStatusKey'
-        - type: object
-          required:
-            - attributes
-          properties:
-            attributes:
-              type: object
-              required:
-                - status
-                - created_at
-                - next_form_at
-                - until_next_form
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - created
-                    - accepted
-                    - processed
-                  description: |
-                    Created - the empty form was created and now user can't use legacy submit
-                    Accepted - the data was saved by the service for further processing
-                    Processed - the data is processed and stored
-                created_at:
-                  type: integer
-                  format: int64
-                  example: 1721392530
-                  description: Form submission time. Unix time.
-                processed_at:
-                  type: integer
-                  format: int64
-                  example: 1721392530
-                  description: Form processing time. Absent if the status is accepted. Unix time.
-                next_form_at:
-                  type: integer
-                  format: int64
-                  example: 1721392530
-                  description: Time of the next possible form submission. Unix time.
-                until_next_form:
-                  type: integer
-                  format: int64
-                  example: 120
-                  description: Time until the next form submission in seconds.
-    FormStatusKey:
-      type: object
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          enum:
-            - form_status
     UploadImage:
       allOf:
         - $ref: '#/components/schemas/UploadImageKey'
