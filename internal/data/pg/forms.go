@@ -11,14 +11,12 @@ import (
 )
 
 const (
-	formsTable        = "forms"
-	formsStatusFields = "id, nullifier, status, created_at, updated_at"
+	formsTable = "forms"
 )
 
 type formsQ struct {
 	db       *pgdb.DB
 	selector squirrel.SelectBuilder
-	last     squirrel.SelectBuilder
 	updater  squirrel.UpdateBuilder
 }
 
@@ -26,7 +24,6 @@ func NewForms(db *pgdb.DB) data.FormsQ {
 	return &formsQ{
 		db:       db,
 		selector: squirrel.Select("*").From(formsTable),
-		last:     squirrel.Select(formsStatusFields).From(formsTable),
 		updater:  squirrel.Update(formsTable),
 	}
 }
@@ -35,10 +32,9 @@ func (q *formsQ) New() data.FormsQ {
 	return NewForms(q.db)
 }
 
-func (q *formsQ) Insert(form *data.Form) (*data.FormStatus, error) {
-	var res data.FormStatus
-
+func (q *formsQ) Insert(form data.Form) error {
 	values := map[string]interface{}{
+		"id":        form.ID,
 		"nullifier": form.Nullifier,
 		"status":    form.Status,
 		"name":      form.Name,
@@ -55,20 +51,13 @@ func (q *formsQ) Insert(form *data.Form) (*data.FormStatus, error) {
 		"phone":     form.Phone,
 		"email":     form.Email,
 		"image":     form.Image,
-		"image_url": form.ImageURL,
 	}
 
-	if form.ID != "" {
-		values["id"] = form.ID
+	if err := q.db.Exec(squirrel.Insert(formsTable).SetMap(values)); err != nil {
+		return fmt.Errorf("insert form: %w", err)
 	}
 
-	stmt := squirrel.Insert(formsTable).SetMap(values).Suffix("RETURNING id, nullifier, status, created_at, updated_at")
-
-	if err := q.db.Get(&res, stmt); err != nil {
-		return nil, fmt.Errorf("insert form: %w", err)
-	}
-
-	return &res, nil
+	return nil
 }
 
 func (q *formsQ) Update(fields map[string]any) error {
@@ -79,8 +68,8 @@ func (q *formsQ) Update(fields map[string]any) error {
 	return nil
 }
 
-func (q *formsQ) Select() ([]*data.Form, error) {
-	var res []*data.Form
+func (q *formsQ) Select() ([]data.Form, error) {
+	var res []data.Form
 
 	if err := q.db.Select(&res, q.selector); err != nil {
 		return nil, fmt.Errorf("select forms: %w", err)
@@ -89,45 +78,39 @@ func (q *formsQ) Select() ([]*data.Form, error) {
 	return res, nil
 }
 
-func (q *formsQ) Get(id string) (*data.FormStatus, error) {
-	var res data.FormStatus
+func (q *formsQ) Get() (*data.Form, error) {
+	var res data.Form
 
-	stmt := squirrel.Select(formsStatusFields).From(formsTable).Where(squirrel.Eq{"id": id})
-	if err := q.db.Get(&res, stmt); err != nil {
+	if err := q.db.Get(&res, q.selector); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("get form status by id=%s: %w", id, err)
+		return nil, fmt.Errorf("get form by id: %w", err)
 	}
 
 	return &res, nil
 }
 
-func (q *formsQ) Last(nullifier string) (*data.FormStatus, error) {
-	var res data.FormStatus
+func (q *formsQ) Last() (*data.Form, error) {
+	var res data.Form
 
-	stmt := q.last.Where(squirrel.Eq{"nullifier": nullifier}).OrderBy("created_at DESC")
+	stmt := q.selector.OrderBy("created_at DESC")
 	if err := q.db.Get(&res, stmt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("get last form status by nullifier=%s: %w", nullifier, err)
+		return nil, fmt.Errorf("get last form by nullifier: %w", err)
 	}
 
 	return &res, nil
-}
-
-func (q *formsQ) Limit(limit uint64) data.FormsQ {
-	q.selector = q.selector.Limit(limit)
-	return q
 }
 
 func (q *formsQ) FilterByID(ids ...string) data.FormsQ {
 	return q.applyCondition(squirrel.Eq{"id": ids})
 }
 
-func (q *formsQ) FilterByNullifier(nullifier string) data.FormsQ {
-	return q.applyCondition(squirrel.Eq{"nullifier": nullifier})
+func (q *formsQ) FilterByNullifier(nullifiers ...string) data.FormsQ {
+	return q.applyCondition(squirrel.Eq{"nullifier": nullifiers})
 }
 
 func (q *formsQ) FilterByStatus(status ...string) data.FormsQ {
@@ -136,7 +119,6 @@ func (q *formsQ) FilterByStatus(status ...string) data.FormsQ {
 
 func (q *formsQ) applyCondition(cond squirrel.Sqlizer) data.FormsQ {
 	q.selector = q.selector.Where(cond)
-	q.last = q.selector.Where(cond)
 	q.updater = q.updater.Where(cond)
 	return q
 }

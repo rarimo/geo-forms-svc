@@ -5,6 +5,6 @@
 package resources
 
 type UploadImageResponseAttributes struct {
-	// Pre-Signed URL for upload the file
+	// Pre-signed URL to upload the file
 	Url string `json:"url"`
 }

@@ -1,11 +1,10 @@
 post:
   tags:
     - User form
-  summary: Submit lightweight user answers
+  summary: Submit user answers
   description: |
     Sending the filled form. Requires created empty form
     linked to the name of the file with the photo. 
-    Return form current status.
 
     The image is a link to s3 storage    
   operationId: lightweightSubmitForm
@@ -27,7 +26,7 @@ post:
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/FormStatus'
+            $ref: '#/components/schemas/Form'
     400:
       $ref: '#/components/responses/invalidParameter'
     401:

@@ -34,6 +34,12 @@ post:
       $ref: '#/components/responses/invalidParameter'
     401:
       $ref: '#/components/responses/invalidAuth'
+    403:
+      description: "Empty form exist for user, but user go to legacy endpoint"
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
     429:
       description: "It is necessary to wait some time before sending the next form"
       content:

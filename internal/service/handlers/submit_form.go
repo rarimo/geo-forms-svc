@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
 	"net/url"
 	"strings"
@@ -28,13 +27,12 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lastForm, err := FormsQ(r).Last(nullifier)
+	lastForm, err := FormsQ(r).FilterByNullifier(nullifier).Last()
 	if err != nil {
-		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
+		Log(r).WithError(err).Errorf("Failed to get last user form by nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
-
 	if lastForm == nil {
 		ape.RenderErr(w, problems.NotFound())
 		return
@@ -82,22 +80,22 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		data.ColPostal:   userData.Postal,
 		data.ColPhone:    userData.Phone,
 		data.ColEmail:    userData.Email,
-		data.ColImageURL: sql.NullString{String: userData.Image, Valid: true},
+		data.ColImage:    userData.Image,
 	})
 	if err != nil {
-		Log(r).WithError(err).Error("failed to insert form")
+		Log(r).WithError(err).Error("failed to update form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	lastForm, err = FormsQ(r).Last(nullifier)
+	lastForm, err = FormsQ(r).FilterByNullifier(nullifier).Last()
 	if err != nil {
 		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	lastForm.NextFormAt = lastForm.CreatedAt.Add(Forms(r).Cooldown)
+	nextFormAt := lastForm.CreatedAt.Add(Forms(r).Cooldown)
 
-	ape.Render(w, newFormStatusResponse(lastForm))
+	ape.Render(w, newFormStatusResponse(*lastForm, nextFormAt))
 }

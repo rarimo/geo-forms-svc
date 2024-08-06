@@ -10,17 +10,19 @@ listener:
 
 forms:
   cooldown: 60m
-  period: 1m
-  min_abnormal_period: 1m
-  max_abnormal_period: 10m
-  resend_forms_count: 1
-  url: forms:forms@tcp(127.0.0.1:5441)/forms
 
 storage:
   backend: "do"
-  endpoint: https://fra1.digitaloceanspaces.com
+  endpoint: https://nyc3.digitaloceanspaces.com
   bucket: bucket
-  presigned_url_expiration: 3m
+  presigned_url_expiration: 5m
+
+spreadsheets:
+  credentials: "./credentials.json"
+  folder: ""
+  period: 1m
+  min_abnormal_period: 1m
+  max_abnormal_period: 10m
 
 auth:
   addr: http://127.0.0.1:5000

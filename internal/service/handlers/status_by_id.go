@@ -20,46 +20,44 @@ func StatusByID(w http.ResponseWriter, r *http.Request) {
 
 	nullifier := strings.ToLower(UserClaims(r)[0].Nullifier)
 
-	lastStatus, err := FormsQ(r).Last(nullifier)
+	lastForm, err := FormsQ(r).FilterByNullifier(nullifier).Last()
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get last form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
-
-	if lastStatus == nil {
+	if lastForm == nil {
 		Log(r).Debugf("Form for user=%s not found", nullifier)
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	if lastStatus.ID == id {
-		ape.Render(w, newFormStatusResponse(lastStatus))
+	nextFormAt := lastForm.CreatedAt
+	if lastForm.Status != data.CreatedStatus {
+		nextFormAt = lastForm.CreatedAt.Add(Forms(r).Cooldown)
+	}
+
+	if lastForm.ID == id {
+		ape.Render(w, newFormStatusResponse(*lastForm, nextFormAt))
 		return
 	}
 
-	formStatus, err := FormsQ(r).Get(id)
+	form, err := FormsQ(r).FilterByID(id).Get()
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get form")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
-
-	if formStatus == nil {
+	if form == nil {
 		Log(r).Debugf("Form with id=%s not found", id)
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	if !auth.Authenticates(UserClaims(r), auth.UserGrant(formStatus.Nullifier)) {
+	if !auth.Authenticates(UserClaims(r), auth.UserGrant(form.Nullifier)) {
 		ape.RenderErr(w, problems.Unauthorized())
 		return
 	}
 
-	formStatus.NextFormAt = lastStatus.CreatedAt
-	if lastStatus.Status != data.CreatedStatus {
-		formStatus.NextFormAt = lastStatus.CreatedAt.Add(Forms(r).Cooldown)
-	}
-
-	ape.Render(w, newFormStatusResponse(formStatus))
+	ape.Render(w, newFormStatusResponse(*form, nextFormAt))
 }

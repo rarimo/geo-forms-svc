@@ -26,26 +26,40 @@ func LegacySubmitForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formStatus, err := FormsQ(r).Last(nullifier)
+	lastForm, err := FormsQ(r).FilterByNullifier(nullifier).Last()
 	if err != nil {
 		Log(r).WithError(err).Errorf("Failed to get last user form for nullifier [%s]", nullifier)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if formStatus != nil {
-		next := formStatus.CreatedAt.Add(Forms(r).Cooldown)
+	if lastForm != nil {
+		if lastForm.Status == data.CreatedStatus {
+			Log(r).Debug("User have `created` form, but do request on legacy endpoint")
+			ape.RenderErr(w, problems.Forbidden())
+			return
+		}
+
+		next := lastForm.CreatedAt.Add(Forms(r).Cooldown)
 		if next.After(time.Now().UTC()) {
-			Log(r).Debugf("Form submitted time: %s; next available time: %s", formStatus.CreatedAt, next)
+			Log(r).Debugf("Form submitted time: %s; next available time: %s", lastForm.CreatedAt, next)
 			ape.RenderErr(w, problems.TooManyRequests())
 			return
 		}
 	}
 
+	key, err := Storage(r).UploadB64Image(&req.Data.Attributes.Image)
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to upload image")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	userData := req.Data.Attributes
-	form := &data.Form{
+	form := data.Form{
+		ID:        key,
 		Nullifier: nullifier,
-		Status:    data.ProcessedStatus,
+		Status:    data.AcceptedStatus,
 		Name:      userData.Name,
 		Surname:   userData.Surname,
 		IDNum:     userData.IdNum,
@@ -59,16 +73,10 @@ func LegacySubmitForm(w http.ResponseWriter, r *http.Request) {
 		Postal:    userData.Postal,
 		Phone:     userData.Phone,
 		Email:     userData.Email,
-		Image:     &userData.Image,
+		Image:     Storage(r).GetURL(key),
 	}
 
-	if err = Forms(r).SendForms(form); err != nil {
-		Log(r).WithError(err).Error("Failed to send form")
-		form.Status = data.AcceptedStatus
-	}
-
-	_, err = FormsQ(r).Insert(form)
-	if err != nil {
+	if err = FormsQ(r).Insert(form); err != nil {
 		Log(r).WithError(err).Error("Failed to insert form")
 		ape.RenderErr(w, problems.InternalError())
 		return
@@ -77,7 +85,7 @@ func LegacySubmitForm(w http.ResponseWriter, r *http.Request) {
 	ape.Render(w, newFormResponse(form))
 }
 
-func newFormResponse(form *data.Form) resources.FormResponse {
+func newFormResponse(form data.Form) resources.FormResponse {
 	return resources.FormResponse{
 		Data: resources.Form{
 			Key: resources.Key{
@@ -99,6 +107,7 @@ func newFormResponse(form *data.Form) resources.FormResponse {
 				Purpose:  form.Purpose,
 				Surname:  form.Surname,
 				Visited:  form.Visited,
+				Image:    form.Image,
 			},
 		},
 	}
