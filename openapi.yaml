@@ -7,7 +7,7 @@ servers:
   - url: 'https://api.demo.tokend.io'
     description: TokenD Developer Environment
 paths:
-  /integrations/forms-svc/v1/form:
+  /integrations/geo-forms-svc/v1/form:
     post:
       tags:
         - User form
@@ -51,7 +51,7 @@ paths:
           $ref: '#/components/responses/notFound'
         '500':
           $ref: '#/components/responses/internalError'
-  /integrations/forms-svc/v1/form/submit:
+  /integrations/geo-forms-svc/v1/form/submit:
     post:
       tags:
         - User form
@@ -102,7 +102,7 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '500':
           $ref: '#/components/responses/internalError'
-  /integrations/forms-svc/v1/image:
+  /integrations/geo-forms-svc/v1/image:
     post:
       tags:
         - User form
@@ -148,7 +148,7 @@ paths:
                 $ref: '#/components/schemas/Errors'
         '500':
           $ref: '#/components/responses/internalError'
-  '/integrations/forms-svc/v1/status/{id}':
+  '/integrations/geo-forms-svc/v1/status/{id}':
     get:
       tags:
         - User form
@@ -180,7 +180,7 @@ paths:
           $ref: '#/components/responses/notFound'
         '500':
           $ref: '#/components/responses/internalError'
-  /integrations/forms-svc/v1/status/last:
+  /integrations/geo-forms-svc/v1/status/last:
     get:
       tags:
         - User form

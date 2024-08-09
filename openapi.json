@@ -12,7 +12,7 @@
     }
   ],
   "paths": {
-    "/integrations/forms-svc/v1/form": {
+    "/integrations/geo-forms-svc/v1/form": {
       "post": {
         "tags": [
           "User form"
@@ -78,7 +78,7 @@
         }
       }
     },
-    "/integrations/forms-svc/v1/form/submit": {
+    "/integrations/geo-forms-svc/v1/form/submit": {
       "post": {
         "tags": [
           "User form"
@@ -151,7 +151,7 @@
         }
       }
     },
-    "/integrations/forms-svc/v1/image": {
+    "/integrations/geo-forms-svc/v1/image": {
       "post": {
         "tags": [
           "User form"
@@ -214,7 +214,7 @@
         }
       }
     },
-    "/integrations/forms-svc/v1/status/{id}": {
+    "/integrations/geo-forms-svc/v1/status/{id}": {
       "get": {
         "tags": [
           "User form"
@@ -266,7 +266,7 @@
         }
       }
     },
-    "/integrations/forms-svc/v1/status/last": {
+    "/integrations/geo-forms-svc/v1/status/last": {
       "get": {
         "tags": [
           "User form"
