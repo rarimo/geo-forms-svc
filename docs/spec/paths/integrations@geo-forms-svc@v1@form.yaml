@@ -26,7 +26,12 @@ post:
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/Form'
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/Form'
     400:
       $ref: '#/components/responses/invalidParameter'
     401:
