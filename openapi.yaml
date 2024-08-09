@@ -36,7 +36,12 @@ paths:
           content:
             application/vnd.api+json:
               schema:
-                $ref: '#/components/schemas/Form'
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Form'
         '400':
           $ref: '#/components/responses/invalidParameter'
         '401':
@@ -83,7 +88,12 @@ paths:
           content:
             application/vnd.api+json:
               schema:
-                $ref: '#/components/schemas/Form'
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Form'
         '400':
           $ref: '#/components/responses/invalidParameter'
         '401':
@@ -135,7 +145,12 @@ paths:
           content:
             application/vnd.api+json:
               schema:
-                $ref: '#/components/schemas/UploadImageResponse'
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UploadImageResponse'
         '400':
           $ref: '#/components/responses/invalidParameter'
         '401':
