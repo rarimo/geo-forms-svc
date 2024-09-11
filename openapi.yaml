@@ -225,6 +225,57 @@ paths:
           $ref: '#/components/responses/notFound'
         '500':
           $ref: '#/components/responses/internalError'
+  /integrations/geo-forms-svc/v2/image:
+    post:
+      tags:
+        - User form
+      summary: Generate pre-signed url
+      description: |
+        Generate pre-signed URL for the provided content-length 
+        and content-type for selfie and passport image, with a configurable lifetime. 
+        The response contains a URL with a signature and 
+        other information that should be used to upload image 
+        in S3 Storage. The name is generated on the server side.
+        'verified: true' must be specified in the JWT.
+        The cooldown of this endpoint is the same as in the submit form.
+        This endpoint creates an empty form that can be submitted on `/form`
+      operationId: uploadImageV2
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/vnd.api+json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  $ref: '#/components/schemas/UploadImageV2'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UploadImageResponseV2'
+        '400':
+          $ref: '#/components/responses/invalidParameter'
+        '401':
+          $ref: '#/components/responses/invalidAuth'
+        '429':
+          description: It is necessary to wait some time before sending the next form
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          $ref: '#/components/responses/internalError'
 components:
   schemas:
     Errors:
@@ -342,6 +393,12 @@ components:
                     base64 encoded image with max size 4 MB or
                     URL for S3 storage with image up to 4 mb
                   example: 'https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg'
+                passport_image:
+                  type: string
+                  description: |
+                    base64 encoded image with max size 4 MB or
+                    URL for S3 storage with image up to 4 mb
+                  example: 'https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg'
                 created_at:
                   type: integer
                   format: int64
@@ -383,6 +440,21 @@ components:
           enum:
             - form
             - submit_form
+    ImageData:
+      type: object
+      required:
+        - content_type
+        - content_length
+      properties:
+        content_type:
+          type: string
+          example: image/png
+          description: 'Allowed content-type is `image/png`, `image/jpeg` or `image/x-jp2`'
+        content_length:
+          type: integer
+          format: int64
+          example: 150000
+          description: Image size. It cannot be more than 4 megabytes.
     UploadImage:
       allOf:
         - $ref: '#/components/schemas/UploadImageKey'
@@ -444,6 +516,43 @@ components:
           type: string
           enum:
             - upload_image_response
+    UploadImageResponseV2:
+      allOf:
+        - $ref: '#/components/schemas/UploadImageResponseKey'
+        - type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - selfie_image_url
+              properties:
+                selfie_image_url:
+                  type: string
+                  description: Pre-signed URL to upload the file
+                  example: 'https://bucket.nyc3.digitaloceanspaces.com/somefile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00PTJRCBZELX6E4EEK%2F20240722%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240722T133921Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=940c9058b90e8836b03470fdb51af1f24baabc16a7a83b80352d3d618aa4f23f'
+                passport_image_url:
+                  type: string
+                  description: Pre-signed URL to upload the file
+                  example: 'https://bucket.nyc3.digitaloceanspaces.com/somefile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00PTJRCBZELX6E4EEK%2F20240722%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240722T133921Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=940c9058b90e8836b03470fdb51af1f24baabc16a7a83b80352d3d618aa4f23f'
+    UploadImageV2:
+      allOf:
+        - $ref: '#/components/schemas/UploadImageKey'
+        - type: object
+          x-go-is-request: true
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: object
+              required:
+                - selfie_image
+              properties:
+                selfie_image:
+                  $ref: '#/components/schemas/ImageData'
+                passport_image:
+                  $ref: '#/components/schemas/ImageData'
   responses:
     internalError:
       description: Internal server error
