@@ -47,7 +47,7 @@ func UploadImageV2(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if passportImage != nil {
-			passportImageSignedURL, _, err = Storage(r).GeneratePutURL(id+"-pass", selfieImage.ContentType, selfieImage.ContentLength)
+			passportImageSignedURL, _, err = Storage(r).GeneratePutURL(id+"-pass", passportImage.ContentType, passportImage.ContentLength)
 			if err != nil {
 				Log(r).WithError(err).Error("Failed to generate passport image pre-signed url")
 				ape.RenderErr(w, problems.InternalError())
@@ -79,7 +79,7 @@ func UploadImageV2(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if passportImage != nil {
-			passportImageSignedURL, _, err = Storage(r).GeneratePutURL(id+"-pass", selfieImage.ContentType, selfieImage.ContentLength)
+			passportImageSignedURL, _, err = Storage(r).GeneratePutURL(id+"-pass", passportImage.ContentType, passportImage.ContentLength)
 			if err != nil {
 				Log(r).WithError(err).Error("Failed to generate passport image pre-signed url")
 				ape.RenderErr(w, problems.InternalError())
@@ -106,7 +106,7 @@ func UploadImageV2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if passportImage != nil {
-		passportImageSignedURL, _, err = Storage(r).GeneratePutURL(id+"-pass", selfieImage.ContentType, selfieImage.ContentLength)
+		passportImageSignedURL, _, err = Storage(r).GeneratePutURL(id+"-pass", passportImage.ContentType, passportImage.ContentLength)
 		if err != nil {
 			Log(r).WithError(err).Error("Failed to generate passport image pre-signed url")
 			ape.RenderErr(w, problems.InternalError())
