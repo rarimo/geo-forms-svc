@@ -1,0 +1,26 @@
+get:
+  tags:
+    - User form
+  summary: Get market
+  description: Get single market
+  parameters:
+    - $ref: '#/components/parameters/pathID'
+    - in: query
+      name: 'api'
+      required: true
+      schema:
+        type: string
+        example: "dc3d2b96-9ff1-4f54-9fb6-005a518089fe"
+        description: Api key for limit access to images
+  operationId: getImage
+  responses:
+    302:
+      description: OK
+    403:
+      description: You must provide a valid api key.
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    500:
+      $ref: '#/components/responses/internalError'

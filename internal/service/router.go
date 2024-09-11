@@ -24,7 +24,7 @@ func Run(ctx context.Context, cfg config.Config) {
 		),
 	)
 	r.Route("/integrations/geo-forms-svc/v1", func(r chi.Router) {
-		r.Get("/image/{id}", nil)
+		r.Get("/image/{id}", handlers.GetImage)
 		r.With(handlers.AuthMiddleware(cfg.Auth(), cfg.Log())).Post("/image", handlers.UploadImage)
 		r.Route("/status", func(r chi.Router) {
 			r.Use(handlers.AuthMiddleware(cfg.Auth(), cfg.Log()))

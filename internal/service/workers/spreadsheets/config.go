@@ -42,6 +42,8 @@ type Spreadsheets struct {
 	minAbnormalPeriod time.Duration
 	maxAbnormalPeriod time.Duration
 
+	Self string
+
 	folder       string
 	sheetID      string
 	lastSubmited time.Time
@@ -73,6 +75,7 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 			Period            time.Duration `fig:"period,required"`
 			MinAbnormalPeriod time.Duration `fig:"min_abnormal_period,required"`
 			MaxAbnormalPeriod time.Duration `fig:"max_abnormal_period,required"`
+			Self              string        `fig:"self,required"`
 		}
 
 		err := figure.Out(&cfg).
@@ -109,8 +112,8 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 			period:            cfg.Period,
 			minAbnormalPeriod: cfg.MinAbnormalPeriod,
 			maxAbnormalPeriod: cfg.MaxAbnormalPeriod,
-
-			folder: cfg.Folder,
+			Self:              cfg.Self,
+			folder:            cfg.Folder,
 
 			sheetsSrv: sheetsSrv,
 			driveSrv:  driveSrv,

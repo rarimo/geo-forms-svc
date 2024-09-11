@@ -17,7 +17,7 @@ import (
 )
 
 func (s *Storage) ValidateImage(object *url.URL, id string) error {
-	bucket, key, err := s.bucketAndKey(object)
+	bucket, key, err := s.BucketAndKey(object)
 	if err != nil {
 		return fmt.Errorf("failed to get bucket and key: %w", err)
 	}
@@ -50,7 +50,7 @@ func (s *Storage) ValidateImage(object *url.URL, id string) error {
 	return nil
 }
 
-func (s *Storage) bucketAndKey(link *url.URL) (bucket, key string, err error) {
+func (s *Storage) BucketAndKey(link *url.URL) (bucket, key string, err error) {
 	switch s.backend {
 	case digitalOceanBackend:
 		spacesURL, err := ParseDOSpacesURL(link)
@@ -133,13 +133,27 @@ func (s *Storage) GeneratePutURL(fileName, contentType string, contentLength int
 }
 
 func (s *Storage) GenerateGetURL(link *url.URL) (signedURL string, err error) {
-	bucket, key, err := s.bucketAndKey(link)
+	bucket, key, err := s.BucketAndKey(link)
 	if err != nil {
 		return "", fmt.Errorf("failed to get bucket and key: %w", err)
 	}
 
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: &bucket,
+		Key:    &key,
+	})
+
+	signedURL, err = req.Presign(time.Hour * 164)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	return signedURL, nil
+}
+
+func (s *Storage) RawSignedGetURL(key string) (signedURL string, err error) {
+	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: &s.bucket,
 		Key:    &key,
 	})
 

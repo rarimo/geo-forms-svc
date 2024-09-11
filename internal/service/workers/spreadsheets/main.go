@@ -48,10 +48,20 @@ func Run(ctx context.Context, cfg extConfig) {
 				return fmt.Errorf("failed to parse image url %s: %w", form.Image, err)
 			}
 
-			signedURL, err := s3.GenerateGetURL(link)
+			_, key, err := s3.BucketAndKey(link)
 			if err != nil {
-				return fmt.Errorf("failed to generate pre-signed get url: %w", err)
+				return fmt.Errorf("failed to generate get bucket and key: %w", err)
 			}
+
+			selfieImageURL, err := url.Parse(spreadsheets.Self)
+			if err != nil {
+				return fmt.Errorf("failed to parse self url %s: %w", spreadsheets.Self, err)
+			}
+
+			selfieImageURL = selfieImageURL.JoinPath(key)
+			q := selfieImageURL.Query()
+			q.Add("api", s3.APIKey)
+			selfieImageURL.RawQuery = q.Encode()
 
 			var passportImageSignedURL string
 			if form.PassportImage.Valid {
@@ -60,10 +70,21 @@ func Run(ctx context.Context, cfg extConfig) {
 					return fmt.Errorf("failed to parse image url %s: %w", form.Image, err)
 				}
 
-				passportImageSignedURL, err = s3.GenerateGetURL(link)
+				_, key, err := s3.BucketAndKey(link)
 				if err != nil {
-					return fmt.Errorf("failed to generate pre-signed get url: %w", err)
+					return fmt.Errorf("failed to generate get bucket and key: %w", err)
 				}
+
+				passportImageURL, err := url.Parse(spreadsheets.Self)
+				if err != nil {
+					return fmt.Errorf("failed to parse self url %s: %w", spreadsheets.Self, err)
+				}
+
+				passportImageURL = passportImageURL.JoinPath(key)
+				q := passportImageURL.Query()
+				q.Add("api", s3.APIKey)
+				passportImageURL.RawQuery = q.Encode()
+				passportImageSignedURL = passportImageURL.String()
 			}
 
 			data = append(data,
@@ -81,7 +102,7 @@ func Run(ctx context.Context, cfg extConfig) {
 				form.Phone,
 				form.Email,
 				form.UpdatedAt.Format("01/02/2006 15:04"),
-				signedURL,
+				selfieImageURL.String(),
 				passportImageSignedURL,
 			)
 
