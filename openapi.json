@@ -342,7 +342,7 @@
         "tags": [
           "User form"
         ],
-        "summary": "Generate pre-signed url",
+        "summary": "Generate two pre-signed urls",
         "description": "Generate pre-signed URL for the provided content-length \nand content-type for selfie and passport image, with a configurable lifetime. \nThe response contains a URL with a signature and \nother information that should be used to upload image \nin S3 Storage. The name is generated on the server side.\n'verified: true' must be specified in the JWT.\nThe cooldown of this endpoint is the same as in the submit form.\nThis endpoint creates an empty form that can be submitted on `/form`\n",
         "operationId": "uploadImageV2",
         "security": [

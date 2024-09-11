@@ -229,7 +229,7 @@ paths:
     post:
       tags:
         - User form
-      summary: Generate pre-signed url
+      summary: Generate two pre-signed urls
       description: |
         Generate pre-signed URL for the provided content-length 
         and content-type for selfie and passport image, with a configurable lifetime. 
