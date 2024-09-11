@@ -74,7 +74,7 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err = Storage(r).ValidateImage(passportImageURL, lastForm.ID+"-2"); err != nil {
+		if err = Storage(r).ValidateImage(passportImageURL, lastForm.ID+"-pass"); err != nil {
 			if storage.IsBadRequestError(err) {
 				ape.RenderErr(w, problems.BadRequest(validation.Errors{
 					"passport_image": err,
