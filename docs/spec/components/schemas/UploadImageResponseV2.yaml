@@ -1,0 +1,19 @@
+allOf:
+  - $ref: '#/components/schemas/UploadImageResponseKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - selfie_image_url
+        properties:
+          selfie_image_url:
+            type: string
+            description: Pre-signed URL to upload the file
+            example: https://bucket.nyc3.digitaloceanspaces.com/somefile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00PTJRCBZELX6E4EEK%2F20240722%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240722T133921Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=940c9058b90e8836b03470fdb51af1f24baabc16a7a83b80352d3d618aa4f23f
+          passport_image_url:
+            type: string
+            description: Pre-signed URL to upload the file
+            example: https://bucket.nyc3.digitaloceanspaces.com/somefile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00PTJRCBZELX6E4EEK%2F20240722%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240722T133921Z&X-Amz-Expires=300&X-Amz-SignedHeaders=host&X-Amz-Signature=940c9058b90e8836b03470fdb51af1f24baabc16a7a83b80352d3d618aa4f23f

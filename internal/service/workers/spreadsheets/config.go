@@ -26,10 +26,10 @@ var (
 	headers = []any{
 		"Name", "Surname", "IDNum", "Birthday", "Citizen",
 		"Visited", "Purpose", "Country", "City", "Address",
-		"Postal", "Phone", "Email", "Time", "Image",
+		"Postal", "Phone", "Email", "Time", "SelfieImage", "PassportImage",
 	}
 
-	sheetRange        = "A%d:O%d"
+	sheetRange        = "A%d:P%d"
 	sheetHeadersRange = fmt.Sprintf(sheetRange, 1, 1)
 )
 

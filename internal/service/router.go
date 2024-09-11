@@ -38,6 +38,10 @@ func Run(ctx context.Context, cfg config.Config) {
 		})
 	})
 
+	r.Route("/integrations/geo-forms-svc/v2", func(r chi.Router) {
+		r.With(handlers.AuthMiddleware(cfg.Auth(), cfg.Log())).Post("/image", handlers.UploadImageV2)
+	})
+
 	cfg.Log().Info("Service started")
 	ape.Serve(ctx, r, cfg, ape.ServeOpts{})
 }

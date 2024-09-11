@@ -1,0 +1,16 @@
+allOf:
+  - $ref: '#/components/schemas/UploadImageKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - selfie_image
+        properties:
+          selfie_image:
+            $ref: '#/components/schemas/ImageData'
+          passport_image:
+            $ref: '#/components/schemas/ImageData'

@@ -1,0 +1,50 @@
+post:
+  tags:
+    - User form
+  summary: Generate pre-signed url
+  description: |
+    Generate pre-signed URL for the provided content-length 
+    and content-type for selfie and passport image, with a configurable lifetime. 
+    The response contains a URL with a signature and 
+    other information that should be used to upload image 
+    in S3 Storage. The name is generated on the server side.
+    'verified: true' must be specified in the JWT.
+    The cooldown of this endpoint is the same as in the submit form.
+    This endpoint creates an empty form that can be submitted on `/form`
+  operationId: uploadImageV2
+  security:
+    - BearerAuth: []
+  requestBody:
+    content:
+      application/vnd.api+json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/UploadImageV2'
+  responses:
+    200:
+      description: "Success"
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/UploadImageResponseV2'
+    400:
+      $ref: '#/components/responses/invalidParameter'
+    401:
+      $ref: '#/components/responses/invalidAuth'
+    429:
+      description: "It is necessary to wait some time before sending the next form"
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    500:
+      $ref: '#/components/responses/internalError'

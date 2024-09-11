@@ -53,6 +53,19 @@ func Run(ctx context.Context, cfg extConfig) {
 				return fmt.Errorf("failed to generate pre-signed get url: %w", err)
 			}
 
+			var passportImageSignedURL string
+			if form.PassportImage.Valid {
+				link, err := url.Parse(form.PassportImage.String)
+				if err != nil {
+					return fmt.Errorf("failed to parse image url %s: %w", form.Image, err)
+				}
+
+				passportImageSignedURL, err = s3.GenerateGetURL(link)
+				if err != nil {
+					return fmt.Errorf("failed to generate pre-signed get url: %w", err)
+				}
+			}
+
 			data = append(data,
 				form.Name,
 				form.Surname,
@@ -69,6 +82,7 @@ func Run(ctx context.Context, cfg extConfig) {
 				form.Email,
 				form.UpdatedAt.Format("01/02/2006 15:04"),
 				signedURL,
+				passportImageSignedURL,
 			)
 
 			tableData = append(tableData, data)
