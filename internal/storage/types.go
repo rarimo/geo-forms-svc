@@ -35,6 +35,7 @@ type Storage struct {
 	presignedURLExpiration time.Duration
 	backend                string
 	region                 string
+	APIKey                 string
 }
 
 type SpacesURL struct {

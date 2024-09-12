@@ -50,6 +50,7 @@ func (c *storager) Storage() *Storage {
 			Bucket                 string         `fig:"bucket,required"`
 			PresignedURLExpiration *time.Duration `fig:"presigned_url_expiration"`
 			Region                 *string        `fig:"region"`
+			APIKey                 string         `fig:"api_key,required"`
 		}
 
 		err = figure.Out(&cfg).
@@ -93,6 +94,7 @@ func (c *storager) Storage() *Storage {
 			presignedURLExpiration: *cfg.PresignedURLExpiration,
 			backend:                cfg.Backend,
 			region:                 *cfg.Region,
+			APIKey:                 cfg.APIKey,
 		}
 	}).(*Storage)
 }

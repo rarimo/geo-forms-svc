@@ -26,10 +26,10 @@ var (
 	headers = []any{
 		"Name", "Surname", "IDNum", "Birthday", "Citizen",
 		"Visited", "Purpose", "Country", "City", "Address",
-		"Postal", "Phone", "Email", "Time", "Image",
+		"Postal", "Phone", "Email", "Time", "SelfieImage", "PassportImage",
 	}
 
-	sheetRange        = "A%d:O%d"
+	sheetRange        = "A%d:P%d"
 	sheetHeadersRange = fmt.Sprintf(sheetRange, 1, 1)
 )
 
@@ -41,6 +41,8 @@ type Spreadsheets struct {
 	period            time.Duration
 	minAbnormalPeriod time.Duration
 	maxAbnormalPeriod time.Duration
+
+	Self string
 
 	folder       string
 	sheetID      string
@@ -73,6 +75,7 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 			Period            time.Duration `fig:"period,required"`
 			MinAbnormalPeriod time.Duration `fig:"min_abnormal_period,required"`
 			MaxAbnormalPeriod time.Duration `fig:"max_abnormal_period,required"`
+			Self              string        `fig:"self,required"`
 		}
 
 		err := figure.Out(&cfg).
@@ -109,8 +112,8 @@ func (c *spreadsheeter) Spreadsheets() *Spreadsheets {
 			period:            cfg.Period,
 			minAbnormalPeriod: cfg.MinAbnormalPeriod,
 			maxAbnormalPeriod: cfg.MaxAbnormalPeriod,
-
-			folder: cfg.Folder,
+			Self:              cfg.Self,
+			folder:            cfg.Folder,
 
 			sheetsSrv: sheetsSrv,
 			driveSrv:  driveSrv,

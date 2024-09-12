@@ -75,6 +75,12 @@ allOf:
               base64 encoded image with max size 4 MB or
               URL for S3 storage with image up to 4 mb
             example: https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg
+          passport_image:
+            type: string
+            description: |
+              base64 encoded image with max size 4 MB or
+              URL for S3 storage with image up to 4 mb
+            example: https://geoforms.nyc3.digitaloceanspaces.com/awesome_phono.jpg
           created_at:
             type: integer
             format: int64

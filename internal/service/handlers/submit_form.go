@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 	"net/url"
 	"strings"
@@ -44,14 +45,14 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageURL, err := url.Parse(req.Data.Attributes.Image)
+	selfieImageURL, err := url.Parse(req.Data.Attributes.Image)
 	if err != nil {
-		Log(r).WithError(err).Errorf("Failed to parse image URL %s", req.Data.Attributes.Image)
+		Log(r).WithError(err).Errorf("Failed to parse selfie image URL %s", req.Data.Attributes.Image)
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if err = Storage(r).ValidateImage(imageURL, lastForm.ID); err != nil {
+	if err = Storage(r).ValidateImage(selfieImageURL, lastForm.ID); err != nil {
 		if storage.IsBadRequestError(err) {
 			ape.RenderErr(w, problems.BadRequest(validation.Errors{
 				"image": err,
@@ -59,28 +60,58 @@ func SubmitForm(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		Log(r).WithError(err).Error("Failed to validate image")
+		Log(r).WithError(err).Error("Failed to validate selfie image")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
+	var passportImageURL *url.URL
+	if req.Data.Attributes.PassportImage != nil {
+		passportImageURL, err = url.Parse(*req.Data.Attributes.PassportImage)
+		if err != nil {
+			Log(r).WithError(err).Errorf("Failed to parse passport image URL %s", *req.Data.Attributes.PassportImage)
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+
+		if err = Storage(r).ValidateImage(passportImageURL, lastForm.ID+"-pass"); err != nil {
+			if storage.IsBadRequestError(err) {
+				ape.RenderErr(w, problems.BadRequest(validation.Errors{
+					"passport_image": err,
+				})...)
+				return
+			}
+
+			Log(r).WithError(err).Error("Failed to validate passport image")
+			ape.RenderErr(w, problems.InternalError())
+			return
+		}
+	}
+
+	var passportImage sql.NullString
+	if req.Data.Attributes.PassportImage != nil {
+		passportImage.String = *req.Data.Attributes.PassportImage
+		passportImage.Valid = true
+	}
+
 	userData := req.Data.Attributes
 	err = FormsQ(r).FilterByID(lastForm.ID).Update(map[string]interface{}{
-		data.ColStatus:   data.AcceptedStatus,
-		data.ColName:     userData.Name,
-		data.ColSurname:  userData.Surname,
-		data.ColIDNum:    userData.IdNum,
-		data.ColBirthday: userData.Birthday,
-		data.ColCitizen:  userData.Citizen,
-		data.ColVisited:  userData.Visited,
-		data.ColPurpose:  userData.Purpose,
-		data.ColCountry:  userData.Country,
-		data.ColCity:     userData.City,
-		data.ColAddress:  userData.Address,
-		data.ColPostal:   userData.Postal,
-		data.ColPhone:    userData.Phone,
-		data.ColEmail:    userData.Email,
-		data.ColImage:    userData.Image,
+		data.ColStatus:        data.AcceptedStatus,
+		data.ColName:          userData.Name,
+		data.ColSurname:       userData.Surname,
+		data.ColIDNum:         userData.IdNum,
+		data.ColBirthday:      userData.Birthday,
+		data.ColCitizen:       userData.Citizen,
+		data.ColVisited:       userData.Visited,
+		data.ColPurpose:       userData.Purpose,
+		data.ColCountry:       userData.Country,
+		data.ColCity:          userData.City,
+		data.ColAddress:       userData.Address,
+		data.ColPostal:        userData.Postal,
+		data.ColPhone:         userData.Phone,
+		data.ColEmail:         userData.Email,
+		data.ColImage:         userData.Image,
+		data.ColPassportImage: passportImage,
 	})
 	if err != nil {
 		Log(r).WithError(err).Error("failed to update form")

@@ -19,8 +19,10 @@ type FormAttributes struct {
 	Name  string `json:"name"`
 	// Time of the next possible form submission. Unix time. Read-only.
 	NextFormAt *int64 `json:"next_form_at,omitempty"`
-	Phone      string `json:"phone"`
-	Postal     string `json:"postal"`
+	// base64 encoded image with max size 4 MB or URL for S3 storage with image up to 4 mb
+	PassportImage *string `json:"passport_image,omitempty"`
+	Phone         string  `json:"phone"`
+	Postal        string  `json:"postal"`
 	// Form processing time. Absent if the status is accepted. Unix time. Read-only.
 	ProcessedAt *int64 `json:"processed_at,omitempty"`
 	Purpose     string `json:"purpose"`

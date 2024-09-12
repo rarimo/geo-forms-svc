@@ -1,0 +1,14 @@
+type: object
+required:
+  - content_type
+  - content_length
+properties:
+  content_type:
+    type: string
+    example: image/png
+    description: Allowed content-type is `image/png`, `image/jpeg` or `image/x-jp2`
+  content_length:
+    type: integer
+    format: int64
+    example: 150000
+    description: Image size. It cannot be more than 4 megabytes.

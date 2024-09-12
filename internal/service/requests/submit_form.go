@@ -12,28 +12,29 @@ import (
 
 var emailRegexp = regexp.MustCompile(`[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}`)
 
-func NewSubmitForm(r *http.Request) (req resources.SubmitFormRequest, err error) {
+func NewSubmitForm(r *http.Request) (req resources.FormResponse, err error) {
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
 		err = newDecodeError("body", err)
 		return
 	}
 
 	errs := validation.Errors{
-		"data/type":                validation.Validate(req.Data.Type, validation.Required, validation.In(resources.SUBMIT_FORM)),
-		"data/attributes/name":     validation.Validate(req.Data.Attributes.Name, validation.Required),
-		"data/attributes/surname":  validation.Validate(req.Data.Attributes.Surname, validation.Required),
-		"data/attributes/id_num":   validation.Validate(req.Data.Attributes.IdNum, validation.Required),
-		"data/attributes/birthday": validation.Validate(req.Data.Attributes.Birthday, validation.Required),
-		"data/attributes/citizen":  validation.Validate(req.Data.Attributes.Citizen, validation.Required),
-		"data/attributes/visited":  validation.Validate(req.Data.Attributes.Visited, validation.Required),
-		"data/attributes/purpose":  validation.Validate(req.Data.Attributes.Purpose, validation.Required),
-		"data/attributes/country":  validation.Validate(req.Data.Attributes.Country, validation.Required),
-		"data/attributes/city":     validation.Validate(req.Data.Attributes.City, validation.Required),
-		"data/attributes/address":  validation.Validate(req.Data.Attributes.Address, validation.Required),
-		"data/attributes/postal":   validation.Validate(req.Data.Attributes.Postal, validation.Required),
-		"data/attributes/phone":    validation.Validate(req.Data.Attributes.Phone, validation.Required),
-		"data/attributes/email":    validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(emailRegexp)),
-		"data/attributes/image":    validation.Validate(req.Data.Attributes.Image, validation.Required, is.URL),
+		"data/type":                      validation.Validate(req.Data.Type, validation.Required, validation.In(resources.SUBMIT_FORM)),
+		"data/attributes/name":           validation.Validate(req.Data.Attributes.Name, validation.Required),
+		"data/attributes/surname":        validation.Validate(req.Data.Attributes.Surname, validation.Required),
+		"data/attributes/id_num":         validation.Validate(req.Data.Attributes.IdNum, validation.Required),
+		"data/attributes/birthday":       validation.Validate(req.Data.Attributes.Birthday, validation.Required),
+		"data/attributes/citizen":        validation.Validate(req.Data.Attributes.Citizen, validation.Required),
+		"data/attributes/visited":        validation.Validate(req.Data.Attributes.Visited, validation.Required),
+		"data/attributes/purpose":        validation.Validate(req.Data.Attributes.Purpose, validation.Required),
+		"data/attributes/country":        validation.Validate(req.Data.Attributes.Country, validation.Required),
+		"data/attributes/city":           validation.Validate(req.Data.Attributes.City, validation.Required),
+		"data/attributes/address":        validation.Validate(req.Data.Attributes.Address, validation.Required),
+		"data/attributes/postal":         validation.Validate(req.Data.Attributes.Postal, validation.Required),
+		"data/attributes/phone":          validation.Validate(req.Data.Attributes.Phone, validation.Required),
+		"data/attributes/email":          validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(emailRegexp)),
+		"data/attributes/image":          validation.Validate(req.Data.Attributes.Image, validation.Required, is.URL),
+		"data/attributes/paspport_image": validation.Validate(req.Data.Attributes.PassportImage, is.URL),
 	}
 
 	return req, errs.Filter()
