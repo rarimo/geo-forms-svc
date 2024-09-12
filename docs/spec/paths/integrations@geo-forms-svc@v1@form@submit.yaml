@@ -1,7 +1,7 @@
 post:
   tags:
     - User form
-  summary: Submit user answers
+  summary: Legacy submit user answers
   description: |
     Send user answers and return their current status.
     
