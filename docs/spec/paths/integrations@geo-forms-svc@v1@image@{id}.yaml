@@ -1,8 +1,8 @@
 get:
   tags:
     - User form
-  summary: Get market
-  description: Get single market
+  summary: Get Image
+  description: Get single image by API key
   parameters:
     - $ref: '#/components/parameters/pathID'
     - in: query
