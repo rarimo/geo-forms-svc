@@ -34,7 +34,7 @@ func NewSubmitForm(r *http.Request) (req resources.FormResponse, err error) {
 		"data/attributes/phone":          validation.Validate(req.Data.Attributes.Phone, validation.Required),
 		"data/attributes/email":          validation.Validate(req.Data.Attributes.Email, validation.Required, validation.Match(emailRegexp)),
 		"data/attributes/image":          validation.Validate(req.Data.Attributes.Image, validation.Required, is.URL),
-		"data/attributes/paspport_image": validation.Validate(req.Data.Attributes.PassportImage, is.URL),
+		"data/attributes/passport_image": validation.Validate(req.Data.Attributes.PassportImage, is.URL),
 	}
 
 	return req, errs.Filter()

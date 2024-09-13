@@ -6,6 +6,8 @@ post:
     Sending the filled form. Requires created empty form
     linked to the name of the file with the photo. 
 
+    Only a user with a confirmed passport can send the form ('verified: true' in JWT).
+    
     The image is a link to s3 storage    
   operationId: lightweightSubmitForm
   security:
