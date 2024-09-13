@@ -2,7 +2,7 @@ get:
   tags:
     - User form
   summary: Get Image
-  description: Get single image by API key
+  description: Creates a signed link to an image that is stored in the storage and then redirects to that link
   parameters:
     - $ref: '#/components/parameters/pathID'
     - in: query

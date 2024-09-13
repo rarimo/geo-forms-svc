@@ -4,7 +4,7 @@ post:
   summary: Generate pre-signed url
   description: |
     Generate pre-signed URL for the provided content-length 
-    and content-type, with a configurable lifetime in config. 
+    and content-type, with a configurable 
     The response contains a URL with a signature and 
     other information that should be used to upload image 
     in S3 Storage. The name is generated on the server side.
