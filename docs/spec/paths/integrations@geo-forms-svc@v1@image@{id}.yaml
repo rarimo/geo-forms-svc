@@ -2,7 +2,7 @@ get:
   tags:
     - User form
   summary: Get image
-  description: Creates a signed link to an image that is stored in the storage and then redirects to that link
+  description: Creates a signed link to an image that is stored in the storage and then redirects to that link.
   parameters:
     - $ref: '#/components/parameters/pathID'
     - in: query

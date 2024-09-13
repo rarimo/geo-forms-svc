@@ -4,7 +4,7 @@ post:
   summary: Generate two pre-signed urls
   description: |
     Generate pre-signed URL for the provided content-length 
-    and content-type for selfie and passport image, with a configurable. 
+    and content-type for selfie and passport image, with a configurable lifetime. 
     The response contains a URL with a signature and 
     other information that should be used to upload image 
     in S3 Storage. The name is generated on the server side.
