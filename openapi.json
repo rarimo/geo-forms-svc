@@ -18,7 +18,7 @@
           "User form"
         ],
         "summary": "Submit user answers",
-        "description": "Sending the filled form. Requires created empty form\nlinked to the name of the file with the photo. \n\nThe image is a link to s3 storage    \n",
+        "description": "Sending the filled form. Requires created empty form\nlinked to the name of the file with the photo. \n\nOnly a user with a confirmed passport can send the form ('verified: true' in JWT).\n\nThe image is a link to s3 storage    \n",
         "operationId": "lightweightSubmitForm",
         "security": [
           {
@@ -91,7 +91,7 @@
         "tags": [
           "User form"
         ],
-        "summary": "Submit user answers",
+        "summary": "Legacy submit user answers",
         "description": "Send user answers and return their current status.\n\nThe image is a base64 string.\n\nOnly a user with a confirmed passport can send the form ('verified: true' in JWT).\nThere is a configurable delay before the same user\ncan submit another form.\n",
         "operationId": "submitForm",
         "security": [
@@ -243,8 +243,8 @@
         "tags": [
           "User form"
         ],
-        "summary": "Get market",
-        "description": "Get single market",
+        "summary": "Get image",
+        "description": "Creates a signed link to an image that is stored in the storage and then redirects to that link.",
         "parameters": [
           {
             "$ref": "#/components/parameters/pathID"
@@ -364,12 +364,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameter"
-          },
-          "401": {
-            "$ref": "#/components/responses/invalidAuth"
           },
           "404": {
             "$ref": "#/components/responses/notFound"

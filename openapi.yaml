@@ -16,6 +16,8 @@ paths:
         Sending the filled form. Requires created empty form
         linked to the name of the file with the photo. 
 
+        Only a user with a confirmed passport can send the form ('verified: true' in JWT).
+
         The image is a link to s3 storage    
       operationId: lightweightSubmitForm
       security:
@@ -60,7 +62,7 @@ paths:
     post:
       tags:
         - User form
-      summary: Submit user answers
+      summary: Legacy submit user answers
       description: |
         Send user answers and return their current status.
 
@@ -167,8 +169,8 @@ paths:
     get:
       tags:
         - User form
-      summary: Get market
-      description: Get single market
+      summary: Get image
+      description: Creates a signed link to an image that is stored in the storage and then redirects to that link.
       parameters:
         - $ref: '#/components/parameters/pathID'
         - in: query
@@ -244,10 +246,6 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/Form'
-        '400':
-          $ref: '#/components/responses/invalidParameter'
-        '401':
-          $ref: '#/components/responses/invalidAuth'
         '404':
           $ref: '#/components/responses/notFound'
         '500':
